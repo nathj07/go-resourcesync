@@ -8,7 +8,7 @@ import (
 )
 
 // Fetcher is a small interface definning the main act of fetching resources.
-// This can be overwritten by the user of the client to provide more custom fetch behaviour
+// This can be overwritten by the user of the client to provide more custom fetch behavior
 type Fetcher interface {
 	Fetch(source, dest string) error
 }
@@ -20,12 +20,16 @@ type BasicRSFetcher struct{}
 
 // Fetch retrieves the resource from source and writes it to dest. It is the callers responsibility
 // to clear up any local files when they are finished with.
+// This fetcher implementation will return an error for a non-200 response.
 func (brf *BasicRSFetcher) Fetch(source, dest string) error {
 	res, err := http.Get(source)
 	if err != nil {
 		return fmt.Errorf("error making GET request against: %q: %v", source, err)
 	}
 	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("non-%d status code %d returned. Data not written", http.StatusOK, res.StatusCode)
+	}
 	brf.writeToDisk(dest, res.Body)
 	if err != nil {
 		return err
