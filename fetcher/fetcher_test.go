@@ -26,17 +26,17 @@ func TestMain(m *testing.M) {
 	})
 	http.HandleFunc("/404", func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(5 * time.Millisecond)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Not Found, %q", html.EscapeString(r.URL.Path))
 	})
 	http.HandleFunc("/403", func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(5 * time.Millisecond)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusForbidden)
 		fmt.Fprintf(w, "Forbidden, %q", html.EscapeString(r.URL.Path))
 	})
 	http.HandleFunc("/503", func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(5 * time.Millisecond)
-		w.WriteHeader(http.StatusAccepted)
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintf(w, "Gateway timeout, %q", html.EscapeString(r.URL.Path))
 	})
 
@@ -44,10 +44,44 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestStatusOKWriutesToDiks(t *testing.T) {
+func TestStatusOKWritesToDisk(t *testing.T) {
+	type testData struct {
+		path        string
+		expResponse int
+		expStatus   int
+		expErr      error
+	}
+
+	testTable := []testData{
+		testData{
+			path:      "/200",
+			expStatus: http.StatusOK,
+			expErr:    nil,
+		},
+		testData{
+			path:      "/404",
+			expStatus: http.StatusNotFound,
+			expErr:    ErrNon200Response,
+		},
+		testData{
+			path:      "/403",
+			expStatus: http.StatusForbidden,
+			expErr:    ErrNon200Response,
+		},
+		testData{
+			path:      "/503",
+			expStatus: http.StatusBadGateway,
+			expErr:    ErrNon200Response,
+		},
+	}
 	brf := &BasicRSFetcher{}
-	err := brf.Fetch(fmt.Sprintf("%s%s", baseTestURL, "/200"), tempDest)
-	if err != nil {
-		t.Fatalf("Unexpected error fetching data: %v", err)
+	for _, td := range testTable {
+		status, err := brf.Fetch(fmt.Sprintf("%s%s", baseTestURL, td.path), tempDest)
+		if err != td.expErr {
+			t.Errorf("Unexpected error returned: %v Exp: %v", err, td.expErr)
+		}
+		if status != td.expStatus {
+			t.Errorf("Unexpected status code: %d; Exp: %d", status, td.expStatus)
+		}
 	}
 }
