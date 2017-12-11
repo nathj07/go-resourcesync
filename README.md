@@ -7,6 +7,6 @@ A Go client for the ResourceSync protocol.
 ## Code Structure
 `resourcesync` This package holds the main data structures use in working with the resourcesync protocol
 
-`fetcher` describes a simple iterface for HTPP fetching and contais `basicFetcher` a simplistic implemntation used in the CLI tool.
+`fetcher` describes a simple interface for HTTP fetching and contains `basicFetcher` a simplistic implementation used in the CLI tool.
 
 `cmd` holds the CLI tool which can be useful in testing endpoints ahead of using them in your production application. This may also be helpful in debugging any issues as it enables you to see the actual response.
