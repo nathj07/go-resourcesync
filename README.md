@@ -1,5 +1,5 @@
 # go-resourcesync
-A Go client for the ResourceSynch protocol.
+A Go client for the ResourceSync protocol.
 
 ## Useful Links and Further Reading
 [ResourceSync Specification](http://www.openarchives.org/rs/toc)
