@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"log"
 	"net/url"
 	"os"
 
+	"github.com/nathj07/go-resourcesync/fetcher"
 	"github.com/nathj07/go-resourcesync/resourcesync"
 )
 
@@ -17,7 +17,13 @@ var (
 	verbose     = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
-// TODO switch fmt.Print to log.Info
+type app struct {
+	rs          *resourcesync.ResourceSync
+	endpoint    string
+	followIndex bool
+	verbose     bool
+}
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `Usage of %s:
@@ -30,55 +36,46 @@ Flags:
 
 	u, err := url.Parse(*target)
 	if err != nil || !u.IsAbs() {
-		fmt.Println("This tool expects a --target flag to be passed in with a valid, absolute URL.")
+		log.Println("This tool expects a --target flag to be passed in with a valid, absolute URL.")
 		os.Exit(1)
 	}
 
-	resources, err := checkResourceSync(*target)
+	app := &app{
+		rs: &resourcesync.ResourceSync{
+			Fetcher: &fetcher.BasicRSFetcher{},
+		},
+		endpoint:    *target,
+		followIndex: *followIndex,
+		verbose:     *verbose,
+	}
+	resources, err := app.checkResourceSync()
 	if err != nil {
-		fmt.Printf("Error encountered checking resourcesync: %v\n", err)
+		log.Printf("Error encountered checking resourcesync: %v\n", err)
 		os.Exit(2)
 	}
 
-	if !*followIndex {
-		fmt.Println("ResourceSync Data:")
-		printLinks(resources.URLSet)
+	if !app.followIndex {
+		log.Println("ResourceSync Data:")
+		app.printLinks(resources.URLSet)
 		os.Exit(0)
 	}
 }
-
-func checkResourceSync(addr string) (*resourcesync.ResourceList, error) {
+func (app *app) checkResourceSync() (*resourcesync.ResourceList, error) {
 	// fetch it
-	b, err := retrieve(addr)
+	data, status, err := app.rs.Fetcher.Fetch(app.endpoint)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Return status code: %d\n", status)
 
-	// send it to parse
-	rs := &resourcesync.ResourceSync{}
-	return rs.Parse(b)
+	return app.rs.Parse(data)
 }
 
-func retrieve(addr string) ([]byte, error) {
-	res, err := http.Get(addr)
-	if err != nil {
-		return nil, err
-	}
-	b, err := ioutil.ReadAll(res.Body)
-	defer res.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("Returned Content Type: %s\n", res.Header.Get("Content-Type"))
-
-	return b, nil
-}
-
-func printLinks(resources []resourcesync.ResourceURL) {
-	if *verbose {
+func (app *app) printLinks(resources []resourcesync.ResourceURL) {
+	if app.verbose {
 		for _, r := range resources {
-			fmt.Printf("Loc: %+v\nLastMod: %+v\n\n", r.Loc, r.LastMod)
+			log.Printf("Loc: %+v\nLastMod: %+v\nrsmd: %+v\nrsln: %+v\n\n", r.Loc, r.LastMod, r.RSMD, r.RSLN)
 		}
 	}
-	fmt.Printf("Total links found: %d\n", len(resources))
+	log.Printf("Total links found: %d\n", len(resources))
 }

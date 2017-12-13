@@ -97,19 +97,20 @@ type ResourceURL struct {
 	LastMod    string `xml:"lastmod"`    // optional
 	ChangeFreq string `xml:"changefreq"` // optional
 	RSMD       RSMD   `xml:"md"`         // optional
+	RSLN       RSLN   `xml:"ln"`         // optional
 }
 
 // IndexDef holds those items defined as making up the resource list index data set
 type IndexDef struct {
 	Loc     string `xml:"loc"`     // mandatory
 	LastMod string `xml:"lastmod"` // optional
-	RSMD    RSMD   `xml:"rs:md"`   // optional
+	RSMD    RSMD   `xml:"md"`      // optional
 }
 
 // RSLN is the namespaced ln values defined in the resourcesync protocol
 type RSLN struct {
-	Rel  string `xml:"rel"`
-	Href string `xml:"href"`
+	Rel  string `xml:"rel,attr"`
+	Href string `xml:"href,attr"`
 }
 
 // RSMD is the namespaced md values defined in the resourcesync protocol
@@ -118,7 +119,7 @@ type RSMD struct {
 	At         string `xml:"at,attr"`
 	Completed  string `xml:"completed,attr"`
 	// the next three are used on ResourceList only
-	Hash   string `xml:"hash"`
-	Length string `xml:"length"`
-	Type   string `xml:"type"`
+	Hash   string `xml:"hash,attr"`
+	Length string `xml:"length,attr"`
+	Type   string `xml:"type,attr"`
 }

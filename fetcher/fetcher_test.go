@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const tempDest = "testdata/tmp.txt"
@@ -50,38 +52,44 @@ func TestStatusOKWritesToDisk(t *testing.T) {
 		expResponse int
 		expStatus   int
 		expErr      error
+		expContent  []byte
 	}
 
 	testTable := []testData{
 		testData{
-			path:      "/200",
-			expStatus: http.StatusOK,
-			expErr:    nil,
+			path:       "/200",
+			expStatus:  http.StatusOK,
+			expErr:     nil,
+			expContent: []byte(fmt.Sprintf("OK, %q", "/200")),
 		},
 		testData{
-			path:      "/404",
-			expStatus: http.StatusNotFound,
-			expErr:    ErrNon200Response,
+			path:       "/404",
+			expStatus:  http.StatusNotFound,
+			expErr:     ErrNon200Response,
+			expContent: nil,
 		},
 		testData{
-			path:      "/403",
-			expStatus: http.StatusForbidden,
-			expErr:    ErrNon200Response,
+			path:       "/403",
+			expStatus:  http.StatusForbidden,
+			expErr:     ErrNon200Response,
+			expContent: nil,
 		},
 		testData{
-			path:      "/503",
-			expStatus: http.StatusBadGateway,
-			expErr:    ErrNon200Response,
+			path:       "/503",
+			expStatus:  http.StatusBadGateway,
+			expErr:     ErrNon200Response,
+			expContent: nil,
 		},
 	}
 	brf := &BasicRSFetcher{}
 	for _, td := range testTable {
-		status, err := brf.Fetch(fmt.Sprintf("%s%s", baseTestURL, td.path), tempDest)
+		data, status, err := brf.Fetch(fmt.Sprintf("%s%s", baseTestURL, td.path))
 		if err != td.expErr {
 			t.Errorf("Unexpected error returned: %v Exp: %v", err, td.expErr)
 		}
 		if status != td.expStatus {
 			t.Errorf("Unexpected status code: %d; Exp: %d", status, td.expStatus)
 		}
+		assert.Equal(t, data, td.expContent)
 	}
 }
