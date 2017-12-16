@@ -12,16 +12,16 @@ import (
 )
 
 var (
-	target      = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
-	followIndex = flag.Bool("follow-index", false, "--follow-index means the tool will follow the links in a sitemaps index. Only one recursion is made")
-	verbose     = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
+	target  = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
+	depth   = flag.Int("depth", 1, "--depth indicates how far to follow if the starting point is an ResourceListIndex. A positive, non-zero number must be supplied")
+	verbose = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
 type app struct {
-	rs          *resourcesync.ResourceSync
-	endpoint    string
-	followIndex bool
-	verbose     bool
+	rs       *resourcesync.ResourceSync
+	endpoint string
+	depth    int
+	verbose  bool
 }
 
 func main() {
@@ -39,25 +39,30 @@ Flags:
 		log.Println("This tool expects a --target flag to be passed in with a valid, absolute URL.")
 		os.Exit(1)
 	}
-
+	if *depth <= 0 {
+		log.Println("An invalid depth value was specified, this must be a positive non-zero value")
+		os.Exit(1)
+	}
 	app := &app{
 		rs: &resourcesync.ResourceSync{
 			Fetcher: &fetcher.BasicRSFetcher{},
 		},
-		endpoint:    *target,
-		followIndex: *followIndex,
-		verbose:     *verbose,
-	}
-	resources, err := app.checkResourceSync()
-	if err != nil {
-		log.Printf("Error encountered checking resourcesync: %v\n", err)
-		os.Exit(2)
+		endpoint: *target,
+		depth:    *depth,
+		verbose:  *verbose,
 	}
 
-	if !app.followIndex {
+	for i := 0; i < app.depth; i++ {
+		// TODO: figure out the correct recursion implementation for this cli.
+		// The idea would be to trawl ech index until we get all the content links.
+		resources, err := app.checkResourceSync()
+		if err != nil {
+			log.Printf("Error encountered checking resourcesync: %v\n", err)
+			os.Exit(1)
+		}
+
 		log.Println("ResourceSync Data:")
 		app.printLinks(resources.RL.URLSet)
-		os.Exit(0)
 	}
 }
 func (app *app) checkResourceSync() (*resourcesync.ResourceData, error) {
