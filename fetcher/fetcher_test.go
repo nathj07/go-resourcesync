@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestStatusOKWritesToDisk(t *testing.T) {
+func TestBasicFetcherFetch(t *testing.T) {
 	type testData struct {
 		path        string
 		expResponse int

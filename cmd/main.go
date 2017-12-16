@@ -56,11 +56,11 @@ Flags:
 
 	if !app.followIndex {
 		log.Println("ResourceSync Data:")
-		app.printLinks(resources.URLSet)
+		app.printLinks(resources.RL.URLSet)
 		os.Exit(0)
 	}
 }
-func (app *app) checkResourceSync() (*resourcesync.ResourceList, error) {
+func (app *app) checkResourceSync() (*resourcesync.ResourceData, error) {
 	// fetch it
 	data, status, err := app.rs.Fetcher.Fetch(app.endpoint)
 	if err != nil {

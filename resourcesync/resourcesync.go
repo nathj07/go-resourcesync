@@ -8,6 +8,7 @@ import (
 	"github.com/nathj07/go-resourcesync/fetcher"
 )
 
+// resource type constant to define the type of data being processed
 const (
 	// Unknown indicates we cannot determine the type of feed we are processing
 	Unknown = iota
@@ -25,6 +26,14 @@ type ResourceSync struct {
 	Fetcher fetcher.RSFetcher
 }
 
+// ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
+// Only one of rl or rli will be populated, the rType value will indicate which
+type ResourceData struct {
+	RL    *ResourceList
+	RLI   *ResourceListIndex
+	RType int // based on the type const above
+}
+
 // New is the simplest way to instantiate a ready to use ResourceSync object
 func New(f fetcher.RSFetcher) *ResourceSync {
 	return &ResourceSync{
@@ -33,23 +42,28 @@ func New(f fetcher.RSFetcher) *ResourceSync {
 }
 
 // Parse handles the unmarshaling of the feed data.
-// TODO: MAKE THIS MORE GENERAL TO SERVE INDEX AND LIST OR HAVE DIFFERENT FUNCTIONS.
-// THINK ABOUT NICEST API FOR USER OF LIBRARY
-func (rs *ResourceSync) Parse(feed []byte) (*ResourceList, error) {
+// The returned ResourceData will have one field populated and the RType value will indicate which.
+func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 	feedType := rs.determineType(feed)
+	rd := &ResourceData{
+		RL:  &ResourceList{},
+		RLI: &ResourceListIndex{},
+	}
 	switch feedType {
 	case Index:
-		return nil, ErrUnsupportedFeedType
-	case List:
-		rl := &ResourceList{}
-		if err := xml.Unmarshal(feed, rl); err != nil {
+		if err := xml.Unmarshal(feed, rd.RLI); err != nil {
 			return nil, err
 		}
-		return rl, nil
+		rd.RType = Index
+	case List:
+		if err := xml.Unmarshal(feed, rd.RL); err != nil {
+			return nil, err
+		}
+		rd.RType = List
 	default:
 		return nil, ErrUnsupportedFeedType
 	}
-
+	return rd, nil
 }
 
 func (rs *ResourceSync) determineType(data []byte) int {
@@ -64,9 +78,7 @@ func (rs *ResourceSync) determineType(data []byte) int {
 
 // TODO:
 // Function to retrieve data
-// Function to parse data - this should be exported and take a []byte to parse returning an exported struct
-// Consider not returning the raw dta structure but a simplified parsed data structure
-// Function to do it all in one go?
+// ?Function to do it all in one go?
 // I think that for now the client will be very simple and it will be up to the caller to
 // determine how far to follow the chain.
 // In the future this could be changed with a slight variation/addition to the public API
