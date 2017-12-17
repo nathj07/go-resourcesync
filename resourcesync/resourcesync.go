@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"fmt"
 
 	"github.com/nathj07/go-resourcesync/fetcher"
 )
@@ -23,7 +24,9 @@ var ErrUnsupportedFeedType = errors.New("unsupported feed type supplied")
 
 // ResourceSync is the top level structure needed to interact with ResourceSync endpoints
 type ResourceSync struct {
-	Fetcher fetcher.RSFetcher
+	Fetcher   fetcher.RSFetcher
+	indexChan chan IndexDef
+	listChan  chan ResourceURL
 }
 
 // ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
@@ -37,8 +40,24 @@ type ResourceData struct {
 // New is the simplest way to instantiate a ready to use ResourceSync object
 func New(f fetcher.RSFetcher) *ResourceSync {
 	return &ResourceSync{
-		Fetcher: f,
+		Fetcher:   f,
+		indexChan: make(chan IndexDef),
+		listChan:  make(chan ResourceURL),
 	}
+}
+
+// Process takes the given target and fetches that page, pasring the data
+// The returned structure indicate the type and then the relevant data can be found.
+func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
+	data, status, err := rs.Fetcher.Fetch(baseTarget)
+	if err != nil {
+		return nil, fmt.Errorf("%d: %v", status, err)
+	}
+	rd, err := rs.Parse(data)
+	if err != nil {
+		return nil, fmt.Errorf("Parse failed: %v", err)
+	}
+	return rd, nil
 }
 
 // Parse handles the unmarshaling of the feed data.
@@ -77,8 +96,7 @@ func (rs *ResourceSync) determineType(data []byte) int {
 }
 
 // TODO:
-// Function to retrieve data
-// ?Function to do it all in one go?
+// Function to do it all in one go; a `Process` function that does fetching and then parsing
 // I think that for now the client will be very simple and it will be up to the caller to
 // determine how far to follow the chain.
 // In the future this could be changed with a slight variation/addition to the public API
@@ -89,10 +107,10 @@ func (rs *ResourceSync) determineType(data []byte) int {
 
 // ResourceListIndex defines the structure of a Resource List Index data set
 type ResourceListIndex struct {
-	XMLName     xml.Name   `xml:"sitemapindex"`
-	RSLink      []RSLN     `xml:"ln"`
-	RSMD        RSMD       `xml:"md"`
-	ResourceSet []IndexDef `xml:"sitemap"`
+	XMLName  xml.Name   `xml:"sitemapindex"`
+	RSLink   []RSLN     `xml:"ln"`
+	RSMD     RSMD       `xml:"md"`
+	IndexSet []IndexDef `xml:"sitemap"`
 }
 
 // ResourceList hods the data from a resource list

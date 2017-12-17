@@ -12,16 +12,20 @@ import (
 )
 
 var (
-	target  = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
+	target = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
+
+	// TODO: Not sure about depth, it may be best to simply get the page you are given or go all the way down?
 	depth   = flag.Int("depth", 1, "--depth indicates how far to follow if the starting point is an ResourceListIndex. A positive, non-zero number must be supplied")
 	verbose = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
 type app struct {
-	rs       *resourcesync.ResourceSync
-	endpoint string
-	depth    int
-	verbose  bool
+	rs        *resourcesync.ResourceSync
+	target    string
+	depth     int
+	verbose   bool
+	indexChan chan string // links from a resourcelist index - these will be followed
+	listChan  chan string // links from a resource list, these will be printed
 }
 
 func main() {
@@ -47,14 +51,18 @@ Flags:
 		rs: &resourcesync.ResourceSync{
 			Fetcher: &fetcher.BasicRSFetcher{},
 		},
-		endpoint: *target,
-		depth:    *depth,
-		verbose:  *verbose,
+		target:    *target,
+		depth:     *depth,
+		verbose:   *verbose,
+		indexChan: make(chan string),
+		listChan:  make(chan string),
 	}
+
+	// TODO: implement the chan and goroutines idea to follow all the way down. Depth becomes just 'follow' or 'recurse'
 
 	for i := 0; i < app.depth; i++ {
 		// TODO: figure out the correct recursion implementation for this cli.
-		// The idea would be to trawl ech index until we get all the content links.
+		// The idea would be to trawl each index until we get all the content links.
 		resources, err := app.checkResourceSync()
 		if err != nil {
 			log.Printf("Error encountered checking resourcesync: %v\n", err)
@@ -67,13 +75,7 @@ Flags:
 }
 func (app *app) checkResourceSync() (*resourcesync.ResourceData, error) {
 	// fetch it
-	data, status, err := app.rs.Fetcher.Fetch(app.endpoint)
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("Return status code: %d\n", status)
-
-	return app.rs.Parse(data)
+	return app.rs.Process(app.target)
 }
 
 func (app *app) printLinks(resources []resourcesync.ResourceURL) {
