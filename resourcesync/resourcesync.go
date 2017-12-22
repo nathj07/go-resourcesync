@@ -17,6 +17,14 @@ const (
 	List
 	// Index indicates a ResourceListIndex
 	Index
+	// Capability indicates this is a capability list
+	Capability
+)
+
+// These constants are correctly formatted strings that help to determine feed types
+const (
+	capabilityList = "capabilityList"
+	resourceList   = "resourceList"
 )
 
 // ErrUnsupportedFeedType is used when the feed type is not one of the supported set
@@ -24,9 +32,7 @@ var ErrUnsupportedFeedType = errors.New("unsupported feed type supplied")
 
 // ResourceSync is the top level structure needed to interact with ResourceSync endpoints
 type ResourceSync struct {
-	Fetcher   fetcher.RSFetcher
-	indexChan chan IndexDef
-	listChan  chan ResourceURL
+	Fetcher fetcher.RSFetcher
 }
 
 // ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
@@ -40,9 +46,7 @@ type ResourceData struct {
 // New is the simplest way to instantiate a ready to use ResourceSync object
 func New(f fetcher.RSFetcher) *ResourceSync {
 	return &ResourceSync{
-		Fetcher:   f,
-		indexChan: make(chan IndexDef),
-		listChan:  make(chan ResourceURL),
+		Fetcher: f,
 	}
 }
 
@@ -63,7 +67,7 @@ func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
 // Parse handles the unmarshaling of the feed data.
 // The returned ResourceData will have one field populated and the RType value will indicate which.
 func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
-	feedType := rs.determineType(feed)
+	feedType := rs.determineBaseType(feed)
 	rd := &ResourceData{
 		RL:  &ResourceList{},
 		RLI: &ResourceListIndex{},
@@ -73,19 +77,26 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 		if err := xml.Unmarshal(feed, rd.RLI); err != nil {
 			return nil, err
 		}
+		rd.RL = nil
 		rd.RType = Index
 	case List:
 		if err := xml.Unmarshal(feed, rd.RL); err != nil {
 			return nil, err
 		}
+		rd.RLI = nil
 		rd.RType = List
+		if rd.RL.RSMD.Capability == capabilityList {
+			rd.RType = Capability
+		}
 	default:
 		return nil, ErrUnsupportedFeedType
 	}
 	return rd, nil
 }
 
-func (rs *ResourceSync) determineType(data []byte) int {
+// determineBaseType simply establishes if the feed is <sitemapindex> or <urlset> at the top level.
+// Any further determination is done under the parse method after the data has been unmarshalled.
+func (rs *ResourceSync) determineBaseType(data []byte) int {
 	if bytes.Contains(data, []byte("<sitemapindex")) {
 		return Index
 	}
@@ -94,12 +105,6 @@ func (rs *ResourceSync) determineType(data []byte) int {
 	}
 	return Unknown
 }
-
-// TODO:
-// Function to do it all in one go; a `Process` function that does fetching and then parsing
-// I think that for now the client will be very simple and it will be up to the caller to
-// determine how far to follow the chain.
-// In the future this could be changed with a slight variation/addition to the public API
 
 //
 // Data Structures
