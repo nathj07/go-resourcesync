@@ -149,6 +149,36 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		testData{
+			tag:      "Capability",
+			testBody: testCapabilityList,
+			expRD: &ResourceData{
+				RType: Capability,
+				RL: &ResourceList{
+					XMLName: xml.Name{
+						Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+						Local: "urlset",
+					},
+					RSLink: []RSLN{
+						RSLN{
+							Rel:  "up",
+							Href: "http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync",
+						},
+					},
+					RSMD: RSMD{
+						Capability: "capabilitylist",
+					},
+					URLSet: []ResourceURL{
+						ResourceURL{
+							Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml\n\t",
+							RSMD: RSMD{
+								Capability: "resourcelist",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, td := range testTable {
 		gotRD, err := rs.Parse(td.testBody)

@@ -15,7 +15,7 @@ For example if processing at the index level it is up to the caller to decide to
 
 `cmd` holds the CLI tool which can be useful in testing endpoints ahead of using them in your production application. This may also be helpful in debugging any issues as it enables you to see the actual response.
 
-Example:
+## Example CLI Usage:
 
 ```bash
 cd cmd
@@ -23,3 +23,34 @@ go run main.go -target http://publisher-connector.core.ac.uk/resourcesync/sitema
 xml -verbose
 ```
 This command will fetch the specified target, which is the bottom of ResourceSync hierarchy, and print all the contain link information to stdout. This code alos serves as a useful example for using this library in your own code.
+
+## Example Library Usage
+```go
+package main
+
+import (
+    "github.com/nathj07/go-resourcesync/fetcher"
+    "github.com/ntahj07/go-resourcesync/resourcesync"
+    "github.com/davecgh/go-spew/spew"
+)
+
+func main() {
+    rs := &ResourceSync{
+        Fetcher: fetcher.BasicFetcher{} // or your own fetcher conforming to the interface
+    }
+    // Using process
+    data, err := rs.Process("http://resourcesync.org/endpoint")
+    if err != nil {
+        panic(err)
+    }
+    spew.Dump(data) // actually do something with it
+
+    // Just using parse, having fetched the data to []byte
+    parsedData, err := rs.Parse(rawData)
+      if err != nil {
+        panic(err)
+    }
+    spew.Dump(parsedData) // actually do something with it
+}
+```
+The code in `cmd/main.go` also functions as a useful example of using this library.

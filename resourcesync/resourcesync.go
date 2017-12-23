@@ -23,8 +23,8 @@ const (
 
 // These constants are correctly formatted strings that help to determine feed types
 const (
-	capabilityList = "capabilityList"
-	resourceList   = "resourceList"
+	capabilityList = "capabilitylist"
+	resourceList   = "resourcelist"
 )
 
 // ErrUnsupportedFeedType is used when the feed type is not one of the supported set
