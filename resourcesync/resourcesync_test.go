@@ -2,7 +2,12 @@ package resourcesync
 
 import (
 	"encoding/xml"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/nathj07/go-resourcesync/fetcher"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -56,128 +61,17 @@ func TestParse(t *testing.T) {
 		testData{
 			tag:      "INDEX",
 			testBody: testResourceListIndex,
-			expRD: &ResourceData{
-				RType: Index,
-				RLI: &ResourceListIndex{
-					XMLName: xml.Name{
-						Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
-						Local: "sitemapindex",
-					},
-					RSLink: []RSLN{
-						RSLN{
-							Rel:  "up",
-							Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
-						},
-					},
-					RSMD: RSMD{
-						Capability: "resourcelist",
-						At:         "2017-05-16T13:55:36Z",
-						Completed:  "2017-05-16T13:56:17Z",
-					},
-					IndexSet: []IndexDef{
-						IndexDef{
-							Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0000.xml\n\t",
-							RSMD: RSMD{
-								At:        "2017-05-16T13:55:38Z",
-								Completed: "2017-05-16T13:56:04Z",
-							},
-						},
-						IndexDef{
-							Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0001.xml\n\t",
-							RSMD: RSMD{
-								At:        "2017-05-16T13:56:11Z",
-								Completed: "2017-05-16T13:56:16Z",
-							},
-						},
-					},
-				},
-			},
+			expRD:    expIndexRD,
 		},
 		testData{
 			tag:      "LIST",
 			testBody: testResourceList,
-			expRD: &ResourceData{
-				RType: List,
-				RL: &ResourceList{
-					XMLName: xml.Name{
-						Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
-						Local: "urlset",
-					},
-					RSLink: []RSLN{
-						RSLN{
-							Rel:  "up",
-							Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
-						},
-						RSLN{
-							Rel:  "index",
-							Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml",
-						},
-					},
-					RSMD: RSMD{
-						Capability: "resourcelist",
-						At:         "2017-05-16T13:56:11Z",
-						Completed:  "2017-05-16T13:56:16Z",
-					},
-					URLSet: []ResourceURL{
-						ResourceURL{
-							Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.pdf\n\t",
-							LastMod: "2017-04-12T19:45:43Z",
-							RSMD: RSMD{
-								Hash:   "md5:d030c6d483b306029b0897630e67c550",
-								Length: "360320",
-								Type:   "application/pdf",
-							},
-							RSLN: RSLN{
-								Rel:  "describedBy",
-								Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.json",
-							},
-						},
-						ResourceURL{
-							Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.pdf\n\t",
-							LastMod: "2017-04-13T05:26:04Z",
-							RSMD: RSMD{
-								Hash:   "md5:24012e8eb5e1aeb4659616019c6d743f",
-								Length: "411256",
-								Type:   "application/pdf",
-							},
-							RSLN: RSLN{
-								Rel:  "describedBy",
-								Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.json",
-							},
-						},
-					},
-				},
-			},
+			expRD:    expListRD,
 		},
 		testData{
 			tag:      "Capability",
 			testBody: testCapabilityList,
-			expRD: &ResourceData{
-				RType: Capability,
-				RL: &ResourceList{
-					XMLName: xml.Name{
-						Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
-						Local: "urlset",
-					},
-					RSLink: []RSLN{
-						RSLN{
-							Rel:  "up",
-							Href: "http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync",
-						},
-					},
-					RSMD: RSMD{
-						Capability: "capabilitylist",
-					},
-					URLSet: []ResourceURL{
-						ResourceURL{
-							Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml\n\t",
-							RSMD: RSMD{
-								Capability: "resourcelist",
-							},
-						},
-					},
-				},
-			},
+			expRD:    expCapabilityRD,
 		},
 	}
 	for _, td := range testTable {
@@ -187,7 +81,46 @@ func TestParse(t *testing.T) {
 		}
 		assert.Equal(t, td.expRD, gotRD)
 	}
+}
 
+func TestProcess(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string(testResourceListIndex))
+	}))
+	rs := New(&fetcher.BasicRSFetcher{})
+	rd, err := rs.Process(server.URL)
+	if err != nil {
+		t.Fatalf("Unexpected error from Process: %v", err)
+	}
+	assert.Equal(t, expIndexRD, rd)
+}
+
+func TestProcessUnsupportedType(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string(testUnsupported))
+	}))
+	rs := New(&fetcher.BasicRSFetcher{})
+	rd, err := rs.Process(server.URL)
+	if err != ErrUnsupportedFeedType {
+		t.Fatalf("Unexpected error: %v; exp: %v.", err, ErrUnsupportedFeedType)
+	}
+	if rd != nil {
+		t.Errorf("Unexpected data returned %v", rd)
+	}
+}
+
+func TestProcessUnsupportedXML(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "<xml><unsupported>bad content</unsupported></xml>")
+	}))
+	rs := New(&fetcher.BasicRSFetcher{})
+	rd, err := rs.Process(server.URL)
+	if err != ErrUnsupportedFeedType {
+		t.Fatalf("Unexpected error: %v; exp: %v.", err, ErrUnsupportedFeedType)
+	}
+	if rd != nil {
+		t.Errorf("Unexpected data returned %v", rd)
+	}
 }
 
 //
@@ -211,6 +144,43 @@ var testResourceListIndex = []byte(`<sitemapindex xmlns="http://www.sitemaps.org
 	</sitemap>
 	</sitemapindex>`)
 
+var expIndexRD = &ResourceData{
+	RType: Index,
+	RLI: &ResourceListIndex{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "sitemapindex",
+		},
+		RSLink: []RSLN{
+			RSLN{
+				Rel:  "up",
+				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
+			},
+		},
+		RSMD: RSMD{
+			Capability: "resourcelist",
+			At:         "2017-05-16T13:55:36Z",
+			Completed:  "2017-05-16T13:56:17Z",
+		},
+		IndexSet: []IndexDef{
+			IndexDef{
+				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0000.xml\n\t",
+				RSMD: RSMD{
+					At:        "2017-05-16T13:55:38Z",
+					Completed: "2017-05-16T13:56:04Z",
+				},
+			},
+			IndexDef{
+				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0001.xml\n\t",
+				RSMD: RSMD{
+					At:        "2017-05-16T13:56:11Z",
+					Completed: "2017-05-16T13:56:16Z",
+				},
+			},
+		},
+	},
+}
+
 var testResourceList = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
 	<rs:ln href="http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml" rel="up"/>
 	<rs:ln href="http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml" rel="index"/>
@@ -233,9 +203,100 @@ var testResourceList = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/si
 	</url>
 	</urlset>`)
 
+var expListRD = &ResourceData{
+	RType: List,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSLink: []RSLN{
+			RSLN{
+				Rel:  "up",
+				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
+			},
+			RSLN{
+				Rel:  "index",
+				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml",
+			},
+		},
+		RSMD: RSMD{
+			Capability: "resourcelist",
+			At:         "2017-05-16T13:56:11Z",
+			Completed:  "2017-05-16T13:56:16Z",
+		},
+		URLSet: []ResourceURL{
+			ResourceURL{
+				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.pdf\n\t",
+				LastMod: "2017-04-12T19:45:43Z",
+				RSMD: RSMD{
+					Hash:   "md5:d030c6d483b306029b0897630e67c550",
+					Length: "360320",
+					Type:   "application/pdf",
+				},
+				RSLN: RSLN{
+					Rel:  "describedBy",
+					Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.json",
+				},
+			},
+			ResourceURL{
+				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.pdf\n\t",
+				LastMod: "2017-04-13T05:26:04Z",
+				RSMD: RSMD{
+					Hash:   "md5:24012e8eb5e1aeb4659616019c6d743f",
+					Length: "411256",
+					Type:   "application/pdf",
+				},
+				RSLN: RSLN{
+					Rel:  "describedBy",
+					Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.json",
+				},
+			},
+		},
+	},
+}
+
 var testCapabilityList = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
 	<rs:ln href="http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync" rel="up"/>
 	<rs:md capability="capabilitylist"/>
+	<url>
+	<loc>
+	http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml
+	</loc>
+	<rs:md capability="resourcelist"/>
+	</url>
+	</urlset>`)
+
+var expCapabilityRD = &ResourceData{
+	RType: Capability,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSLink: []RSLN{
+			RSLN{
+				Rel:  "up",
+				Href: "http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync",
+			},
+		},
+		RSMD: RSMD{
+			Capability: "capabilitylist",
+		},
+		URLSet: []ResourceURL{
+			ResourceURL{
+				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml\n\t",
+				RSMD: RSMD{
+					Capability: "resourcelist",
+				},
+			},
+		},
+	},
+}
+
+var testUnsupported = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+	<rs:ln href="http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync" rel="up"/>
+	<rs:md capability="unsupported"/>
 	<url>
 	<loc>
 	http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml

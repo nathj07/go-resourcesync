@@ -84,9 +84,13 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 			return nil, err
 		}
 		rd.RLI = nil
-		rd.RType = List
-		if rd.RL.RSMD.Capability == capabilityList {
+		switch rd.RL.RSMD.Capability {
+		case resourceList:
+			rd.RType = List
+		case capabilityList:
 			rd.RType = Capability
+		default:
+			return nil, ErrUnsupportedFeedType
 		}
 	default:
 		return nil, ErrUnsupportedFeedType
