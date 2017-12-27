@@ -19,12 +19,17 @@ const (
 	Index
 	// Capability indicates this is a capability list
 	Capability
+	// ChangeList indicates this is a change list
+	ChangeList
+	// ChangeListIndex indicates this is a change list index
+	ChangeListIndex
 )
 
 // These constants are correctly formatted strings that help to determine feed types
 const (
 	capabilityList = "capabilitylist"
 	resourceList   = "resourcelist"
+	changeList     = "changelist"
 )
 
 // ErrUnsupportedFeedType is used when the feed type is not one of the supported set
@@ -59,7 +64,7 @@ func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
 	}
 	rd, err := rs.Parse(data)
 	if err != nil {
-		return nil, fmt.Errorf("Parse failed: %v", err)
+		return nil, err
 	}
 	return rd, nil
 }
@@ -78,7 +83,14 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 			return nil, err
 		}
 		rd.RL = nil
-		rd.RType = Index
+		switch rd.RLI.RSMD.Capability {
+		case changeList:
+			rd.RType = ChangeListIndex
+		case resourceList:
+			rd.RType = Index
+		default:
+			return nil, ErrUnsupportedFeedType
+		}
 	case List:
 		if err := xml.Unmarshal(feed, rd.RL); err != nil {
 			return nil, err
@@ -89,6 +101,8 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 			rd.RType = List
 		case capabilityList:
 			rd.RType = Capability
+		case changeList:
+			rd.RType = ChangeList
 		default:
 			return nil, ErrUnsupportedFeedType
 		}
@@ -161,4 +175,9 @@ type RSMD struct {
 	Hash   string `xml:"hash,attr"`
 	Length string `xml:"length,attr"`
 	Type   string `xml:"type,attr"`
+	// the following are used on ChangeList only
+	From     string `xml:"from,attr"`
+	Until    string `xml:"until,attr"`
+	Change   string `xml:"change,attr"`
+	DateTime string `xml:"datetime,attr"`
 }

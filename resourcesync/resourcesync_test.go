@@ -69,9 +69,19 @@ func TestParse(t *testing.T) {
 			expRD:    expListRD,
 		},
 		testData{
-			tag:      "Capability",
+			tag:      "CAPABILITY",
 			testBody: testCapabilityList,
 			expRD:    expCapabilityRD,
+		},
+		testData{
+			tag:      "CHANGELIST",
+			testBody: testChangeList,
+			expRD:    expChangeListRD,
+		},
+		testData{
+			tag:      "CHANGELISTINDEX",
+			testBody: testChangeListIndex,
+			expRD:    expChangeListIndexRD,
 		},
 	}
 	for _, td := range testTable {
@@ -79,7 +89,7 @@ func TestParse(t *testing.T) {
 		if err != nil {
 			t.Errorf("%s Unexpected error in parse: %v", td.tag, err)
 		}
-		assert.Equal(t, td.expRD, gotRD)
+		assert.Equal(t, td.expRD, gotRD, td.tag)
 	}
 }
 
@@ -304,3 +314,152 @@ var testUnsupported = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sit
 	<rs:md capability="resourcelist"/>
 	</url>
 	</urlset>`)
+
+var testChangeList = []byte(`<?xml version="1.0" encoding="UTF-8"?>
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+			xmlns:rs="http://www.openarchives.org/rs/terms/">
+	  <rs:ln rel="up"
+			 href="http://example.com/dataset1/capabilitylist.xml"/>
+	  <rs:ln rel="index"
+			 href="http://example.com/dataset1/changelist.xml"/>
+	  <rs:md capability="changelist"
+			 from="2013-01-02T00:00:00Z"
+			 until="2013-01-03T00:00:00Z"/>
+	  <url>
+		  <loc>http://example.com/res7.html</loc>
+		  <rs:md change="created" datetime="2013-01-02T12:00:00Z"/>
+	  </url>
+	  <url>
+		  <loc>http://example.com/res9.pdf</loc>
+		  <rs:md change="updated" datetime="2013-01-02T13:00:00Z"/>
+	  </url>
+	  <url>
+		  <loc>http://example.com/res5.tiff</loc>
+		  <rs:md change="deleted" datetime="2013-01-02T19:00:00Z"/>
+	  </url>
+	  <url>
+		  <loc>http://example.com/res7.html</loc>
+		  <rs:md change="updated" datetime="2013-01-02T20:00:00Z"/>
+	  </url>
+	</urlset>`)
+
+var expChangeListRD = &ResourceData{
+	RType: ChangeList,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSLink: []RSLN{
+			RSLN{
+				Rel:  "up",
+				Href: "http://example.com/dataset1/capabilitylist.xml",
+			},
+			RSLN{
+				Rel:  "index",
+				Href: "http://example.com/dataset1/changelist.xml",
+			},
+		},
+		RSMD: RSMD{
+			Capability: "changelist",
+			From:       "2013-01-02T00:00:00Z",
+			Until:      "2013-01-03T00:00:00Z",
+		},
+		URLSet: []ResourceURL{
+			ResourceURL{
+				Loc: "http://example.com/res7.html",
+				RSMD: RSMD{
+					Change:   "created",
+					DateTime: "2013-01-02T12:00:00Z",
+				},
+			},
+			ResourceURL{
+				Loc: "http://example.com/res9.pdf",
+				RSMD: RSMD{
+					Change:   "updated",
+					DateTime: "2013-01-02T13:00:00Z",
+				},
+			},
+			ResourceURL{
+				Loc: "http://example.com/res5.tiff",
+				RSMD: RSMD{
+					Change:   "deleted",
+					DateTime: "2013-01-02T19:00:00Z",
+				},
+			},
+			ResourceURL{
+				Loc: "http://example.com/res7.html",
+				RSMD: RSMD{
+					Change:   "updated",
+					DateTime: "2013-01-02T20:00:00Z",
+				},
+			},
+		},
+	},
+}
+
+var testChangeListIndex = []byte(`<?xml version="1.0" encoding="UTF-8"?>
+	<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+			xmlns:rs="http://www.openarchives.org/rs/terms/">
+		<rs:ln rel="up"
+				href="http://example.com/dataset1/capabilitylist.xml"/>
+		<rs:md capability="changelist"
+				from="2013-01-01T00:00:00Z"/>
+		<sitemap>
+			<loc>http://example.com/20130101-changelist.xml</loc>
+			<rs:md from="2013-01-01T00:00:00Z" 
+					until="2013-01-02T00:00:00Z"/>
+		</sitemap>
+		<sitemap>
+			<loc>http://example.com/20130102-changelist.xml</loc>
+			<rs:md from="2013-01-02T00:00:00Z" 
+					until="2013-01-03T00:00:00Z"/>
+		</sitemap>
+		<sitemap>
+			<loc>http://example.com/20130103-changelist.xml</loc>
+			<rs:md from="2013-01-03T00:00:00Z"/>
+		</sitemap>
+	</sitemapindex>`)
+
+// TODO: build this expectation and update the parse method to handle the differences in <sitemapindex> feeds
+var expChangeListIndexRD = &ResourceData{
+	RType: ChangeListIndex,
+	RLI: &ResourceListIndex{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "sitemapindex",
+		},
+		RSLink: []RSLN{
+			RSLN{
+				Rel:  "up",
+				Href: "http://example.com/dataset1/capabilitylist.xml",
+			},
+		},
+		RSMD: RSMD{
+			Capability: "changelist",
+			From:       "2013-01-01T00:00:00Z",
+		},
+		IndexSet: []IndexDef{
+			IndexDef{
+				Loc: "http://example.com/20130101-changelist.xml",
+				RSMD: RSMD{
+					From:  "2013-01-01T00:00:00Z",
+					Until: "2013-01-02T00:00:00Z",
+				},
+			},
+			IndexDef{
+				Loc: "http://example.com/20130102-changelist.xml",
+				RSMD: RSMD{
+					From:  "2013-01-02T00:00:00Z",
+					Until: "2013-01-03T00:00:00Z",
+				},
+			},
+			IndexDef{
+				Loc: "http://example.com/20130103-changelist.xml",
+				RSMD: RSMD{
+					From: "2013-01-03T00:00:00Z",
+				},
+			},
+		},
+	},
+}
