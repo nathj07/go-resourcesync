@@ -73,39 +73,50 @@ func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
 // The returned ResourceData will have one field populated and the RType value will indicate which.
 func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 	feedType := rs.determineBaseType(feed)
-	rd := &ResourceData{
-		RL:  &ResourceList{},
-		RLI: &ResourceListIndex{},
-	}
 	switch feedType {
 	case Index:
-		if err := xml.Unmarshal(feed, rd.RLI); err != nil {
-			return nil, err
-		}
-		rd.RL = nil
-		switch rd.RLI.RSMD.Capability {
-		case changeList:
-			rd.RType = ChangeListIndex
-		case resourceList:
-			rd.RType = Index
-		default:
-			return nil, ErrUnsupportedFeedType
-		}
+		return rs.parseIndexType(feed)
 	case List:
-		if err := xml.Unmarshal(feed, rd.RL); err != nil {
-			return nil, err
-		}
-		rd.RLI = nil
-		switch rd.RL.RSMD.Capability {
-		case resourceList:
-			rd.RType = List
-		case capabilityList:
-			rd.RType = Capability
-		case changeList:
-			rd.RType = ChangeList
-		default:
-			return nil, ErrUnsupportedFeedType
-		}
+		return rs.parseListType(feed)
+	default:
+		return nil, ErrUnsupportedFeedType
+	}
+}
+
+func (rs *ResourceSync) parseIndexType(feed []byte) (*ResourceData, error) {
+	rd := &ResourceData{
+		RLI: &ResourceListIndex{},
+		RL:  nil,
+	}
+	if err := xml.Unmarshal(feed, rd.RLI); err != nil {
+		return nil, err
+	}
+	switch rd.RLI.RSMD.Capability {
+	case changeList:
+		rd.RType = ChangeListIndex
+	case resourceList:
+		rd.RType = Index
+	default:
+		return nil, ErrUnsupportedFeedType
+	}
+	return rd, nil
+}
+
+func (rs *ResourceSync) parseListType(feed []byte) (*ResourceData, error) {
+	rd := &ResourceData{
+		RLI: nil,
+		RL:  &ResourceList{},
+	}
+	if err := xml.Unmarshal(feed, rd.RL); err != nil {
+		return nil, err
+	}
+	switch rd.RL.RSMD.Capability {
+	case resourceList:
+		rd.RType = List
+	case capabilityList:
+		rd.RType = Capability
+	case changeList:
+		rd.RType = ChangeList
 	default:
 		return nil, ErrUnsupportedFeedType
 	}
@@ -113,6 +124,7 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 }
 
 // determineBaseType simply establishes if the feed is <sitemapindex> or <urlset> at the top level.
+
 // Any further determination is done under the parse method after the data has been unmarshalled.
 func (rs *ResourceSync) determineBaseType(data []byte) int {
 	if bytes.Contains(data, []byte("<sitemapindex")) {
