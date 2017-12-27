@@ -421,7 +421,6 @@ var testChangeListIndex = []byte(`<?xml version="1.0" encoding="UTF-8"?>
 		</sitemap>
 	</sitemapindex>`)
 
-// TODO: build this expectation and update the parse method to handle the differences in <sitemapindex> feeds
 var expChangeListIndexRD = &ResourceData{
 	RType: ChangeListIndex,
 	RLI: &ResourceListIndex{
