@@ -1,5 +1,5 @@
 // pacakge goresourcesync is a simple go library for intertacting with resourcesync data.
-// The resourcesync protocol is based on the pre-existing sitempa protocol and details can be found:
+// The resourcesync protocol is based on the pre-existing sitemap protocol and details can be found:
 // http://www.openarchives.org/rs/toc
 //
 // The motivation for this protocol is easing the discovery of academic research content and providing a
