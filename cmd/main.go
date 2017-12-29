@@ -59,7 +59,6 @@ Flags:
 	}
 
 	// TODO: implement the chan and goroutines idea to follow all the way down. Depth becomes just 'follow' or 'recurse'
-	// TODO: utilise the String methods so that this will print any feed typ
 	for i := 0; i < app.depth; i++ {
 		// TODO: figure out the correct recursion implementation for this cli.
 		// The idea would be to trawl each index until we get all the content links.
@@ -70,19 +69,16 @@ Flags:
 		}
 
 		log.Println("ResourceSync Data:")
-		app.printLinks(resources.RL.URLSet)
+		if resources.RL != nil {
+			log.Println(resources.RL)
+		}
+		if resources.RLI != nil {
+			log.Println(resources.RLI)
+		}
 	}
 }
+
 func (app *app) checkResourceSync() (*resourcesync.ResourceData, error) {
 	// fetch it
 	return app.rs.Process(app.target)
-}
-
-func (app *app) printLinks(resources []resourcesync.ResourceURL) {
-	if app.verbose {
-		for _, r := range resources {
-			log.Printf("Loc: %+v\nLastMod: %+v\nrsmd: %+v\nrsln: %+v\n\n", r.Loc, r.LastMod, r.RSMD, r.RSLN)
-		}
-	}
-	log.Printf("Total links found: %d\n", len(resources))
 }
