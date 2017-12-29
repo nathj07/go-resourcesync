@@ -59,7 +59,7 @@ Flags:
 	}
 
 	// TODO: implement the chan and goroutines idea to follow all the way down. Depth becomes just 'follow' or 'recurse'
-
+	// TODO: utilise the String methods so that this will print any feed typ
 	for i := 0; i < app.depth; i++ {
 		// TODO: figure out the correct recursion implementation for this cli.
 		// The idea would be to trawl each index until we get all the content links.

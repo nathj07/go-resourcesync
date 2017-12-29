@@ -41,7 +41,7 @@ type ResourceSync struct {
 }
 
 // ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
-// Only one of rl or rli will be populated, the rType value will indicate which
+// Only one of RL or RLI will be populated, the rType value will indicate which
 type ResourceData struct {
 	RL    *ResourceList
 	RLI   *ResourceListIndex
