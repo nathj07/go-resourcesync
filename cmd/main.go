@@ -67,14 +67,23 @@ Flags:
 			log.Printf("Error encountered checking resourcesync: %v\n", err)
 			os.Exit(1)
 		}
+		count := 0
 
 		log.Println("ResourceSync Data:")
 		if resources.RL != nil {
-			log.Println(resources.RL)
+			if app.verbose {
+				log.Println(resources.RL)
+			}
+			count = len(resources.RL.URLSet)
 		}
 		if resources.RLI != nil {
-			log.Println(resources.RLI)
+			if app.verbose {
+				log.Println(resources.RLI)
+			}
+			count = len(resources.RLI.IndexSet)
 		}
+
+		log.Printf("Discovered %d links from %s", count, app.target) // TODO: target will need ot change if we recurse
 	}
 }
 
