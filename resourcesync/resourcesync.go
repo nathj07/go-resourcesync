@@ -41,7 +41,7 @@ type ResourceSync struct {
 }
 
 // ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
-// Only one of rl or rli will be populated, the rType value will indicate which
+// Only one of RL or RLI will be populated, the rType value will indicate which
 type ResourceData struct {
 	RL    *ResourceList
 	RLI   *ResourceListIndex
@@ -134,62 +134,4 @@ func (rs *ResourceSync) determineBaseType(data []byte) int {
 		return List
 	}
 	return Unknown
-}
-
-//
-// Data Structures
-//
-
-// ResourceListIndex defines the structure of a Resource List Index data set
-type ResourceListIndex struct {
-	XMLName  xml.Name   `xml:"sitemapindex"`
-	RSLink   []RSLN     `xml:"ln"`
-	RSMD     RSMD       `xml:"md"`
-	IndexSet []IndexDef `xml:"sitemap"`
-}
-
-// ResourceList hods the data from a resource list
-type ResourceList struct {
-	XMLName xml.Name      `xml:"urlset"`
-	RSLink  []RSLN        `xml:"ln"`
-	RSMD    RSMD          `xml:"md"`
-	URLSet  []ResourceURL `xml:"url"`
-}
-
-// ResourceURL holds the data retrieved from the url tag set within a standard sitemap.xml
-type ResourceURL struct {
-	Loc        string `xml:"loc"`        // mandatory
-	LastMod    string `xml:"lastmod"`    // optional
-	ChangeFreq string `xml:"changefreq"` // optional
-	RSMD       RSMD   `xml:"md"`         // optional
-	RSLN       RSLN   `xml:"ln"`         // optional
-}
-
-// IndexDef holds those items defined as making up the resource list index data set
-type IndexDef struct {
-	Loc     string `xml:"loc"`     // mandatory
-	LastMod string `xml:"lastmod"` // optional
-	RSMD    RSMD   `xml:"md"`      // optional
-}
-
-// RSLN is the namespaced ln values defined in the resourcesync protocol
-type RSLN struct {
-	Rel  string `xml:"rel,attr"`
-	Href string `xml:"href,attr"`
-}
-
-// RSMD is the namespaced md values defined in the resourcesync protocol
-type RSMD struct {
-	Capability string `xml:"capability,attr"`
-	At         string `xml:"at,attr"`
-	Completed  string `xml:"completed,attr"`
-	// the next three are used on ResourceList only
-	Hash   string `xml:"hash,attr"`
-	Length string `xml:"length,attr"`
-	Type   string `xml:"type,attr"`
-	// the following are used on ChangeList only
-	From     string `xml:"from,attr"`
-	Until    string `xml:"until,attr"`
-	Change   string `xml:"change,attr"`
-	DateTime string `xml:"datetime,attr"`
 }
