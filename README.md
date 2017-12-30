@@ -1,5 +1,7 @@
 # go-resourcesync
 
+https://circleci.com/gh/nathj07/go-resourcesync.svg?style=shield&circle-token=:circle-token
+
 A Go client for the ResourceSync protocol.
 
 This client makes no decisions on what to do with the data that is returned. It will simply fetch it, unmarshal it into a easy to use data structure and return that. It is up to the consumer to decide what to do with this data.
