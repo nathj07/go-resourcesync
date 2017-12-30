@@ -1,6 +1,6 @@
 # go-resourcesync
 
-https://circleci.com/gh/nathj07/go-resourcesync.svg?style=shield&circle-token=0c9fb37da87f3dd9f9758a5c6fb279b626f760db
+[![CircleCI](https://circleci.com/gh/nathj07/go-resourcesync/tree/master.svg?style=svg&circle-token=0c9fb37da87f3dd9f9758a5c6fb279b626f760db)](https://circleci.com/gh/nathj07/go-resourcesync/tree/master)
 
 A Go client for the ResourceSync protocol.
 
