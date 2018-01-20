@@ -12,20 +12,20 @@ import (
 )
 
 var (
-	target = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
-
-	// TODO: Not sure about depth, it may be best to simply get the page you are given or go all the way down?
-	depth   = flag.Int("depth", 1, "--depth indicates how far to follow if the starting point is an ResourceListIndex. A positive, non-zero number must be supplied")
+	target  = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
+	follow  = flag.Bool("follow", false, "--follow indicates if resource link index sets shoudl be followed until resource lists are reached")
 	verbose = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
+var segmentation = "====================" // breaks up the output
+
 type app struct {
-	rs        *resourcesync.ResourceSync
-	target    string
-	depth     int
-	verbose   bool
-	indexChan chan string // links from a resourcelist index - these will be followed
-	listChan  chan string // links from a resource list, these will be printed
+	rs             *resourcesync.ResourceSync
+	follow         bool
+	verbose        bool
+	indexLinkCount int
+	linkCount      int
+	startingPoint  string
 }
 
 func main() {
@@ -43,51 +43,56 @@ Flags:
 		log.Println("This tool expects a --target flag to be passed in with a valid, absolute URL.")
 		os.Exit(1)
 	}
-	if *depth <= 0 {
-		log.Println("An invalid depth value was specified, this must be a positive non-zero value")
-		os.Exit(1)
-	}
 	app := &app{
 		rs: &resourcesync.ResourceSync{
 			Fetcher: &fetcher.BasicRSFetcher{},
 		},
-		target:    *target,
-		depth:     *depth,
-		verbose:   *verbose,
-		indexChan: make(chan string),
-		listChan:  make(chan string),
+		follow:        *follow,
+		verbose:       *verbose,
+		startingPoint: *target,
 	}
 
-	// TODO: implement the chan and goroutines idea to follow all the way down. Depth becomes just 'follow' or 'recurse'
-	for i := 0; i < app.depth; i++ {
-		// TODO: figure out the correct recursion implementation for this cli.
-		// The idea would be to trawl each index until we get all the content links.
-		resources, err := app.checkResourceSync()
-		if err != nil {
-			log.Printf("Error encountered checking resourcesync: %v\n", err)
-			os.Exit(1)
-		}
-		count := 0
-
-		log.Println("ResourceSync Data:")
-		if resources.RL != nil {
-			if app.verbose {
-				log.Println(resources.RL)
-			}
-			count = len(resources.RL.URLSet)
-		}
-		if resources.RLI != nil {
-			if app.verbose {
-				log.Println(resources.RLI)
-			}
-			count = len(resources.RLI.IndexSet)
-		}
-
-		log.Printf("Discovered %d links from %s", count, app.target) // TODO: target will need ot change if we recurse
+	app.processTarget(*target)
+	if app.verbose {
+		log.Println("Starting point:", app.startingPoint)
+		log.Println("Index links found:", app.indexLinkCount)
+		log.Println("Resource links found:", app.linkCount)
 	}
 }
 
-func (app *app) checkResourceSync() (*resourcesync.ResourceData, error) {
+func (app *app) processTarget(target string) {
+	resources, err := app.checkResourceSync(target)
+	if err != nil {
+		log.Printf("Error encountered checking resourcesync: %v\n", err)
+		os.Exit(1)
+	}
+
+	log.Println("ResourceSync Data:")
+	if resources.RL != nil {
+		// this is the end of the chain, these we print, these would be the links to full text content
+		if app.verbose {
+			log.Println(resources.RL)
+		}
+		app.linkCount += len(resources.RL.URLSet)
+	}
+	if resources.RLI != nil {
+		for _, index := range resources.RLI.IndexSet {
+			if app.verbose {
+				log.Println("Will follow:", index)
+				log.Println(segmentation)
+			}
+			if app.follow {
+				app.processTarget(index.Loc)
+			}
+		}
+		if app.verbose {
+			log.Printf("Followed %d index links\n", len(resources.RLI.IndexSet))
+			log.Println(segmentation)
+		}
+		app.indexLinkCount += len(resources.RLI.IndexSet)
+	}
+}
+func (app *app) checkResourceSync(target string) (*resourcesync.ResourceData, error) {
 	// fetch it
-	return app.rs.Process(app.target)
+	return app.rs.Process(target)
 }
