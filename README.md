@@ -28,7 +28,7 @@ go run main.go -target http://publisher-connector.core.ac.uk/resourcesync/sitema
 xml -verbose
 ```
 
-This command will fetch the specified target, which is the bottom of ResourceSync hierarchy, and print all the contain link information to stdout. This code alos serves as a useful example for using this library in your own code.
+This command will fetch the specified target, which is the bottom of ResourceSync hierarchy, and print all the contain link information to stdout. This code also serves as a useful example for using this library in your own code.
 
 ## Example Library Usage
 
