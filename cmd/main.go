@@ -13,7 +13,7 @@ import (
 
 var (
 	target  = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
-	follow  = flag.Bool("follow", false, "--follow indicates if resource link index sets shoudl be followed until resource lists are reached")
+	follow  = flag.Bool("follow", false, "--follow indicates if resource link index sets should be followed until resource lists are reached")
 	verbose = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
