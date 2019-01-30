@@ -55,7 +55,7 @@ func New(f fetcher.RSFetcher) *ResourceSync {
 	}
 }
 
-// Process takes the given target and fetches that page, pasring the data
+// Process takes the given target and fetches that page, parsing the data
 // The returned structure indicate the type and then the relevant data can be found.
 func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
 	data, status, err := rs.Fetcher.Fetch(baseTarget)
