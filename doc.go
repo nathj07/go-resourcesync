@@ -1,4 +1,4 @@
-// pacakge goresourcesync is a simple go library for interacting with resourcesync data.
+// package goresourcesync is a simple go library for interacting with resourcesync data.
 // The resourcesync protocol is based on the pre-existing sitemap protocol and details can be found:
 // http://www.openarchives.org/rs/toc
 //
