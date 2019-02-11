@@ -13,19 +13,27 @@ import (
 
 var (
 	target  = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
+	targetType = flag.String("targettype", "resourcesync", "--targettype indicates if this is 'resourecesync' or 'core'")
 	follow  = flag.Bool("follow", false, "--follow indicates if resource link index sets should be followed until resource lists are reached")
+	apiKey = flag.String("apikey", "", "--apikey is used in requests for CORE article metadata")
 	verbose = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
 )
 
-var segmentation = "====================" // breaks up the output
 
+const (
+	segmentation = "====================" // breaks up the output
+	targetCore = "core"
+)
 type app struct {
 	rs             *resourcesync.ResourceSync
+	ce *resourcesync.CoreExtractor
 	follow         bool
 	verbose        bool
 	indexLinkCount int
 	linkCount      int
 	startingPoint  string
+	targetType string
+	apiKey string
 }
 
 func main() {
@@ -43,13 +51,22 @@ Flags:
 		log.Println("This tool expects a --target flag to be passed in with a valid, absolute URL.")
 		os.Exit(1)
 	}
+	if *targetType ==targetCore && *apiKey == ""{
+		log.Printf("When specifying the target type %q you must provide an API Key for use in requests for the metadata.\n", targetCore)
+		os.Exit(1)
+	}
 	app := &app{
 		rs: &resourcesync.ResourceSync{
 			Fetcher: &fetcher.BasicRSFetcher{},
 		},
+		ce : &resourcesync.CoreExtractor{
+			Fetcher : &fetcher.BasicRSFetcher{},
+		},
 		follow:        *follow,
 		verbose:       *verbose,
 		startingPoint: *target,
+		targetType: *targetType,
+		apiKey: *apiKey,
 	}
 
 	app.processTarget(*target)
@@ -61,6 +78,24 @@ Flags:
 }
 
 func (app *app) processTarget(target string) {
+	if app.targetType == targetCore{
+		// fetch and unmarshall the data
+		app.processCoreMetadata()
+		return
+	}
+	app.processResourceSync(target)
+}
+
+func (app *app) processCoreMetadata(){
+	data, err := app.ce.Process(app.startingPoint, app.apiKey)
+	if err != nil {
+		log.Printf("failed to process CORE metadata from %q: %v\n", app.startingPoint, err)
+		os.Exit(1)
+	}
+	log.Println(data)
+}
+
+func (app *app) processResourceSync(target string){
 	resources, err := app.checkResourceSync(target)
 	if err != nil {
 		log.Printf("Error encountered checking resourcesync: %v\n", err)
@@ -82,7 +117,7 @@ func (app *app) processTarget(target string) {
 				log.Println(segmentation)
 			}
 			if app.follow {
-				app.processTarget(index.Loc)
+				app.processResourceSync(index.Loc)
 			}
 		}
 		if app.verbose {
