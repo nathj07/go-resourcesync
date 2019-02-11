@@ -1,4 +1,4 @@
-package resourcesync
+package core
 
 import (
 	"bytes"
@@ -8,44 +8,44 @@ import (
 	"reflect"
 )
 
-// CoreArticleWrapper is the top level struct for unmarshalling the CORE article data
-type CoreArticleWrapper struct {
-	Status string      `json:"status"`
-	Data   CoreArticle `json:"data"`
+// ArticleWrapper is the top level struct for unmarshalling the CORE article data
+type ArticleWrapper struct {
+	Status string  `json:"status"`
+	Data   Article `json:"data"`
 }
 
-// CoreArticle holds the article details
-type CoreArticle struct {
+// Article holds the article details
+type Article struct {
 	ID                 string            `json:"id"`
-	Authors            []string          `json:"authors"`
-	Contributors       []string          `json:"contributors"`
-	DatePublished      string            `json:"datePublished"`
-	Description        string            `json:"description"`
-	Identifiers        []string          `json:"identifiers"`
-	Language           CoreLanguage      `json:"language"`
-	Publisher          string            `json:"publisher"`
-	Relations          []string          `json:"relations"`
-	Repositories       []CoreRepository  `json:"repositories"`
-	RepositoryDocument CoreRepositoryDoc `json:"repositoryDocument"`
-	Subjects           []string          `json:"subjects"`
-	Title              string            `json:"title"`
-	Topics             []string          `json:"topics"`
-	Types              []string          `json:"types"`
-	Year               int               `json:"year"`
-	FulltextIdentifier string            `json:"fulltextIdentifier"`
-	Oai                string            `json:"oai"`
-	DownloadURL        string            `json:"downloadUrl"`
+	Authors            []string      `json:"authors"`
+	Contributors       []string      `json:"contributors"`
+	DatePublished      string        `json:"datePublished"`
+	Description        string        `json:"description"`
+	Identifiers        []string      `json:"identifiers"`
+	Language           Language      `json:"language"`
+	Publisher          string        `json:"publisher"`
+	Relations          []string      `json:"relations"`
+	Repositories       []Repository  `json:"repositories"`
+	RepositoryDocument RepositoryDoc `json:"repositoryDocument"`
+	Subjects           []string      `json:"subjects"`
+	Title              string        `json:"title"`
+	Topics             []string      `json:"topics"`
+	Types              []string      `json:"types"`
+	Year               int           `json:"year"`
+	FulltextIdentifier string        `json:"fulltextIdentifier"`
+	Oai                string        `json:"oai"`
+	DownloadURL        string        `json:"downloadUrl"`
 }
 
-// CoreLanguage represents the language details supplied in the ResourceSync article JSON
-type CoreLanguage struct {
+// Language represents the language details supplied in the ResourceSync article JSON
+type Language struct {
 	Code string `json:"code"`
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-// CoreRepository handles the repository provided details
-type CoreRepository struct {
+// Repository handles the repository provided details
+type Repository struct {
 	ID                 string `json:"id"`
 	OpenDoarID         int    `json:"openDoarId"`
 	Name               string `json:"name"`
@@ -67,19 +67,19 @@ type CoreRepository struct {
 	RepositoryLocation string `json:"repositoryLocation"`
 }
 
-// CoreRepositoryDoc handles the repository document details
-type CoreRepositoryDoc struct {
+// RepositoryDoc handles the repository document details
+type RepositoryDoc struct {
 	PdfStatus       int   `json:"pdfStatus"`
 	MetadataAdded   int64 `json:"metadataAdded"`
 	MetadataUpdated int64 `json:"metadataUpdated"`
 	DepositedDate   int64 `json:"depositedDate"`
 }
 
-type CoreExtractor struct{
+type Extractor struct{
 	Fetcher fetcher.RSFetcher
 }
 
-func (ce *CoreExtractor) Process(target, apiKey string) (*CoreArticleWrapper, error){
+func (ce *Extractor) Process(target, apiKey string) (*ArticleWrapper, error){
 	data, status, err := ce.Fetcher.Fetch(target + "?apiKey=" + apiKey)
 	if err != nil {
 		return nil, fmt.Errorf("%d: %v", status, err)
@@ -88,8 +88,8 @@ func (ce *CoreExtractor) Process(target, apiKey string) (*CoreArticleWrapper, er
 }
 
 // ExtractArticle is a convenience method around unmarshalling the CORE article metadata
-func (ce *CoreExtractor) ExtractArticle(rawData []byte) (*CoreArticleWrapper, error) {
-	res := &CoreArticleWrapper{}
+func (ce *Extractor) ExtractArticle(rawData []byte) (*ArticleWrapper, error) {
+	res := &ArticleWrapper{}
 	err := json.Unmarshal(rawData, res)
 	if err != nil {
 		return nil, err
@@ -99,10 +99,10 @@ func (ce *CoreExtractor) ExtractArticle(rawData []byte) (*CoreArticleWrapper, er
 
 // String implements the Stringer interface to ensure consistent printing of the extracted article metadata.
 // If fields are empty they are omitted from the output.
-func (caw *CoreArticleWrapper)String() string{
+func (aw *ArticleWrapper)String() string{
 
 var b bytes.Buffer
-s := reflect.ValueOf(caw).Elem()
+s := reflect.ValueOf(aw).Elem()
 	typeOfT := s.Type()
 
 	for i := 0; i < s.NumField(); i++ {
