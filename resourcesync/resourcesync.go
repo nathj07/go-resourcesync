@@ -5,24 +5,9 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/nathj07/go-resourcesync/extractor"
 
 	"github.com/nathj07/go-resourcesync/fetcher"
-)
-
-// resource type constant to define the type of data being processed
-const (
-	// Unknown indicates we cannot determine the type of feed we are processing
-	Unknown = iota
-	// List indicates a ResourceList
-	List
-	// Index indicates a ResourceListIndex
-	Index
-	// Capability indicates this is a capability list
-	Capability
-	// ChangeList indicates this is a change list
-	ChangeList
-	// ChangeListIndex indicates this is a change list index
-	ChangeListIndex
 )
 
 // These constants are correctly formatted strings that help to determine feed types
@@ -40,14 +25,6 @@ type ResourceSync struct {
 	Fetcher fetcher.RSFetcher
 }
 
-// ResourceData is the structure for holding the data returned from a ResoureceSync fetch.
-// Only one of RL or RLI will be populated, the rType value will indicate which
-type ResourceData struct {
-	RL    *ResourceList
-	RLI   *ResourceListIndex
-	RType int // based on the type const above
-}
-
 // New is the simplest way to instantiate a ready to use ResourceSync object
 func New(f fetcher.RSFetcher) *ResourceSync {
 	return &ResourceSync{
@@ -57,7 +34,7 @@ func New(f fetcher.RSFetcher) *ResourceSync {
 
 // Process takes the given target and fetches that page, parsing the data
 // The returned structure indicate the type and then the relevant data can be found.
-func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
+func (rs *ResourceSync) Process(baseTarget string) (*extractor.ResourceData, error) {
 	data, status, err := rs.Fetcher.Fetch(baseTarget)
 	if err != nil {
 		return nil, fmt.Errorf("%d: %v", status, err)
@@ -71,7 +48,7 @@ func (rs *ResourceSync) Process(baseTarget string) (*ResourceData, error) {
 
 // Parse handles the unmarshaling of the feed data.
 // The returned ResourceData will have one field populated and the RType value will indicate which.
-func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
+func (rs *ResourceSync) Parse(feed []byte) (*extractor.ResourceData, error) {
 	feedType := rs.determineBaseType(feed)
 	switch feedType {
 	case Index:
@@ -83,7 +60,7 @@ func (rs *ResourceSync) Parse(feed []byte) (*ResourceData, error) {
 	}
 }
 
-func (rs *ResourceSync) parseIndexType(feed []byte) (*ResourceData, error) {
+func (rs *ResourceSync) parseIndexType(feed []byte) (*extractor.ResourceData, error) {
 	rd := &ResourceData{
 		RLI: &ResourceListIndex{},
 		RL:  nil,
@@ -102,7 +79,7 @@ func (rs *ResourceSync) parseIndexType(feed []byte) (*ResourceData, error) {
 	return rd, nil
 }
 
-func (rs *ResourceSync) parseListType(feed []byte) (*ResourceData, error) {
+func (rs *ResourceSync) parseListType(feed []byte) (*extractor.ResourceData, error) {
 	rd := &ResourceData{
 		RLI: nil,
 		RL:  &ResourceList{},

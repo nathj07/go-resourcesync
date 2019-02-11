@@ -1,4 +1,4 @@
-package resourcesync
+package extractor
 
 import (
 	"fmt"

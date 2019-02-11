@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// RSFetcher is a small interface definning the main act of fetching resources.
+// RSFetcher is a small interface defining the main act of fetching resources.
 // This can be overwritten by the user of the client to provide more custom fetch behavior
 type RSFetcher interface {
 	Fetch(source string) ([]byte, int, error)

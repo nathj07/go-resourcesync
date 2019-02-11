@@ -3,6 +3,7 @@ package resourcesync
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/nathj07/go-resourcesync/extractor"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,29 +15,29 @@ import (
 
 func TestDetermineBaseType(t *testing.T) {
 	rs := &ResourceSync{}
-	type testData struct {
+
+
+	testTable := []struct {
 		tag      string
 		testBody []byte
 		expRType int
-	}
-
-	testTable := []testData{
-		testData{
+	}{
+		{
 			tag:      "INDEX",
 			testBody: testResourceListIndex,
 			expRType: Index,
 		},
-		testData{
+		{
 			tag:      "LIST",
 			testBody: testResourceList,
 			expRType: List,
 		},
-		testData{
+		{
 			tag:      "LIST",
 			testBody: testCapabilityList,
 			expRType: List,
 		},
-		testData{
+		{
 			tag:      "UNKNOWN",
 			testBody: []byte(`<xml><unsupported>bad content</unsupported></xml>`),
 			expRType: Unknown,
@@ -57,28 +58,32 @@ func TestParse(t *testing.T) {
 		expRD    *ResourceData
 	}
 
-	testTable := []testData{
-		testData{
+	testTable := []struct {
+		tag      string
+		testBody []byte
+		expRD    *ResourceData
+	}{
+		{
 			tag:      "INDEX",
 			testBody: testResourceListIndex,
 			expRD:    expIndexRD,
 		},
-		testData{
+		{
 			tag:      "LIST",
 			testBody: testResourceList,
 			expRD:    expListRD,
 		},
-		testData{
+		{
 			tag:      "CAPABILITY",
 			testBody: testCapabilityList,
 			expRD:    expCapabilityRD,
 		},
-		testData{
+		{
 			tag:      "CHANGELIST",
 			testBody: testChangeList,
 			expRD:    expChangeListRD,
 		},
-		testData{
+		{
 			tag:      "CHANGELISTINDEX",
 			testBody: testChangeListIndex,
 			expRD:    expChangeListIndexRD,
@@ -156,33 +161,33 @@ var testResourceListIndex = []byte(`<sitemapindex xmlns="http://www.sitemaps.org
 
 var expIndexRD = &ResourceData{
 	RType: Index,
-	RLI: &ResourceListIndex{
+	RLI: &extractor.ResourceListIndex{
 		XMLName: xml.Name{
 			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
 			Local: "sitemapindex",
 		},
-		RSLink: []RSLN{
-			RSLN{
+		RSLink: []extractor.RSLN{
+			extractor.RSLN{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
 			},
 		},
-		RSMD: RSMD{
+		RSMD: extractor.RSMD{
 			Capability: "resourcelist",
 			At:         "2017-05-16T13:55:36Z",
 			Completed:  "2017-05-16T13:56:17Z",
 		},
-		IndexSet: []IndexDef{
-			IndexDef{
+		IndexSet: []extractor.IndexDef{
+			extractor.IndexDef{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0000.xml\n\t",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					At:        "2017-05-16T13:55:38Z",
 					Completed: "2017-05-16T13:56:04Z",
 				},
 			},
-			IndexDef{
+			extractor.IndexDef{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0001.xml\n\t",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					At:        "2017-05-16T13:56:11Z",
 					Completed: "2017-05-16T13:56:16Z",
 				},
@@ -213,51 +218,51 @@ var testResourceList = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/si
 	</url>
 	</urlset>`)
 
-var expListRD = &ResourceData{
+var expListRD *ResourceData = &extractor.ResourceData{
 	RType: List,
-	RL: &ResourceList{
+	RL: &extractor.ResourceList{
 		XMLName: xml.Name{
 			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
 			Local: "urlset",
 		},
-		RSLink: []RSLN{
-			RSLN{
+		RSLink: []extractor.RSLN{
+			extractor.RSLN{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
 			},
-			RSLN{
+			extractor.RSLN{
 				Rel:  "index",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml",
 			},
 		},
-		RSMD: RSMD{
+		RSMD: extractor.RSMD{
 			Capability: "resourcelist",
 			At:         "2017-05-16T13:56:11Z",
 			Completed:  "2017-05-16T13:56:16Z",
 		},
-		URLSet: []ResourceURL{
-			ResourceURL{
+		URLSet: []extractor.ResourceURL{
+			extractor.ResourceURL{
 				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.pdf\n\t",
 				LastMod: "2017-04-12T19:45:43Z",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Hash:   "md5:d030c6d483b306029b0897630e67c550",
 					Length: "360320",
 					Type:   "application/pdf",
 				},
-				RSLN: RSLN{
+				RSLN: extractor.RSLN{
 					Rel:  "describedBy",
 					Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.json",
 				},
 			},
-			ResourceURL{
+			extractor.ResourceURL{
 				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.pdf\n\t",
 				LastMod: "2017-04-13T05:26:04Z",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Hash:   "md5:24012e8eb5e1aeb4659616019c6d743f",
 					Length: "411256",
 					Type:   "application/pdf",
 				},
-				RSLN: RSLN{
+				RSLN: extractor.RSLN{
 					Rel:  "describedBy",
 					Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.json",
 				},
@@ -279,24 +284,24 @@ var testCapabilityList = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/
 
 var expCapabilityRD = &ResourceData{
 	RType: Capability,
-	RL: &ResourceList{
+	RL: &extractor.ResourceList{
 		XMLName: xml.Name{
 			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
 			Local: "urlset",
 		},
-		RSLink: []RSLN{
-			RSLN{
+		RSLink: []extractor.RSLN{
+			extractor.RSLN{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync",
 			},
 		},
-		RSMD: RSMD{
+		RSMD: extractor.RSMD{
 			Capability: "capabilitylist",
 		},
-		URLSet: []ResourceURL{
-			ResourceURL{
+		URLSet: []extractor.ResourceURL{
+			extractor.ResourceURL{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml\n\t",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Capability: "resourcelist",
 				},
 			},
@@ -343,53 +348,53 @@ var testChangeList = []byte(`<?xml version="1.0" encoding="UTF-8"?>
 	  </url>
 	</urlset>`)
 
-var expChangeListRD = &ResourceData{
+var expChangeListRD = &extractor.ResourceData{
 	RType: ChangeList,
-	RL: &ResourceList{
+	RL: &extractor.ResourceList{
 		XMLName: xml.Name{
 			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
 			Local: "urlset",
 		},
-		RSLink: []RSLN{
-			RSLN{
+		RSLink: []extractor.RSLN{
+			extractor.RSLN{
 				Rel:  "up",
 				Href: "http://example.com/dataset1/capabilitylist.xml",
 			},
-			RSLN{
+			extractor.RSLN{
 				Rel:  "index",
 				Href: "http://example.com/dataset1/changelist.xml",
 			},
 		},
-		RSMD: RSMD{
+		RSMD: extractor.RSMD{
 			Capability: "changelist",
 			From:       "2013-01-02T00:00:00Z",
 			Until:      "2013-01-03T00:00:00Z",
 		},
-		URLSet: []ResourceURL{
-			ResourceURL{
+		URLSet: []extractor.ResourceURL{
+			extractor.ResourceURL{
 				Loc: "http://example.com/res7.html",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Change:   "created",
 					DateTime: "2013-01-02T12:00:00Z",
 				},
 			},
-			ResourceURL{
+			extractor.ResourceURL{
 				Loc: "http://example.com/res9.pdf",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Change:   "updated",
 					DateTime: "2013-01-02T13:00:00Z",
 				},
 			},
-			ResourceURL{
+			extractor.ResourceURL{
 				Loc: "http://example.com/res5.tiff",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Change:   "deleted",
 					DateTime: "2013-01-02T19:00:00Z",
 				},
 			},
-			ResourceURL{
+			extractor.ResourceURL{
 				Loc: "http://example.com/res7.html",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					Change:   "updated",
 					DateTime: "2013-01-02T20:00:00Z",
 				},
@@ -421,41 +426,41 @@ var testChangeListIndex = []byte(`<?xml version="1.0" encoding="UTF-8"?>
 		</sitemap>
 	</sitemapindex>`)
 
-var expChangeListIndexRD = &ResourceData{
+var expChangeListIndexRD = &extractor.ResourceData{
 	RType: ChangeListIndex,
-	RLI: &ResourceListIndex{
+	RLI: &extractor.ResourceListIndex{
 		XMLName: xml.Name{
 			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
 			Local: "sitemapindex",
 		},
-		RSLink: []RSLN{
-			RSLN{
+		RSLink: []extractor.RSLN{
+			extractor.RSLN{
 				Rel:  "up",
 				Href: "http://example.com/dataset1/capabilitylist.xml",
 			},
 		},
-		RSMD: RSMD{
+		RSMD: extractor.RSMD{
 			Capability: "changelist",
 			From:       "2013-01-01T00:00:00Z",
 		},
-		IndexSet: []IndexDef{
-			IndexDef{
+		IndexSet: []extractor.IndexDef{
+			extractor.IndexDef{
 				Loc: "http://example.com/20130101-changelist.xml",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					From:  "2013-01-01T00:00:00Z",
 					Until: "2013-01-02T00:00:00Z",
 				},
 			},
-			IndexDef{
+			extractor.IndexDef{
 				Loc: "http://example.com/20130102-changelist.xml",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					From:  "2013-01-02T00:00:00Z",
 					Until: "2013-01-03T00:00:00Z",
 				},
 			},
-			IndexDef{
+			extractor.IndexDef{
 				Loc: "http://example.com/20130103-changelist.xml",
-				RSMD: RSMD{
+				RSMD: extractor.RSMD{
 					From: "2013-01-03T00:00:00Z",
 				},
 			},
