@@ -16,6 +16,9 @@ For example if processing at the index level it is up to the caller to decide to
 
 `resourcesync` This package holds the main data structures use in working with the resourcesync protocol
 
+`core` This package handles the CORE specific details, it is responsible for processing the CORE article metadata format. For more details please review the [CORE API](https://core.ac.uk/docs/)
+or see the main [CORE website](https://core.ac.uk/).
+
 `fetcher` describes a simple interface for HTTP fetching and contains `basicFetcher` a simplistic implementation used in the CLI tool.
 
 `cmd` holds the CLI tool which can be useful in testing endpoints ahead of using them in your production application. This may also be helpful in debugging any issues as it enables you to see the actual response.
