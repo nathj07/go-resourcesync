@@ -14,7 +14,7 @@ import (
 
 var (
 	target     = flag.String("target", "", "--target=http:/example.com/resourcesync.xml")
-	targetType = flag.String("targettype", "resourcesync", "--targettype indicates if this is 'resourecesync' or 'core'")
+	targetType = flag.String("targettype", "resourcesync", "--targettype indicates if this is 'resourcesync' or 'core'")
 	follow     = flag.Bool("follow", false, "--follow indicates if resource link index sets should be followed until resource lists are reached")
 	apiKey     = flag.String("apikey", "", "--apikey is used in requests for CORE article metadata")
 	verbose    = flag.Bool("verbose", false, "--verbose, if set will print all the links discovered")
