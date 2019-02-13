@@ -32,7 +32,7 @@ func TestProcessFetchFail(t *testing.T) {
 	assert.Equal(t, expArticleWrapper, article)
 }
 
-func TestArticleString(t *testing.T){
+func TestArticleString(t *testing.T) {
 	assert.Equal(t, expArticleString, fmt.Sprintf("%s", expArticleWrapper))
 }
 
@@ -55,6 +55,7 @@ var testArticleData = []byte(`{
         ],
         "datePublished": "2012",
         "description": "Keywords: journalist’s attitudes, media ethics, professional values, responsibility, accountability, transparency, self-regulation, Estonian journalism, MediaAct.",
+		"fullText": "A long body of text as was extracted from the original document.",
         "identifiers": [
             "oai:dspace.ac:123456"
         ],
@@ -89,6 +90,10 @@ var testArticleData = []byte(`{
             "media"
         ],
         "year": 2012,
+		"fulltextUrls" :[
+			"http://example.com/download/pdf/123456.pdf",
+			"http://original.example.com/download/pdf/123456.pdf"
+		],
         "fulltextIdentifier": "https://example.com/download/pdf/123456.pdf",
         "oai": "oai:dspace.ac:123456",
         "downloadUrl": "https://example.com/download/pdf/123456.pdf"
@@ -103,6 +108,7 @@ var expArticleWrapper = &ArticleWrapper{
 		Contributors:  []string{"Davies, Sarah", "Smith, John", "Brown, Emma"},
 		DatePublished: "2012",
 		Description:   "Keywords: journalist’s attitudes, media ethics, professional values, responsibility, accountability, transparency, self-regulation, Estonian journalism, MediaAct.",
+		FullText:      "A long body of text as was extracted from the original document.",
 		Identifiers:   []string{"oai:dspace.ac:123456"},
 		Language: Language{
 			Code: "et",
@@ -129,6 +135,7 @@ var expArticleWrapper = &ArticleWrapper{
 		Title:              "This is a long and complicated article",
 		Topics:             []string{"article", "complexity", "media"},
 		Year:               2012,
+		FullTextURLs:       []string{"http://example.com/download/pdf/123456.pdf", "http://original.example.com/download/pdf/123456.pdf"},
 		FullTextIdentifier: "https://example.com/download/pdf/123456.pdf",
 		OAI:                "oai:dspace.ac:123456",
 		DownloadURL:        "https://example.com/download/pdf/123456.pdf",
@@ -136,5 +143,5 @@ var expArticleWrapper = &ArticleWrapper{
 }
 
 var expArticleString = `Status: OK
-Data: {123456 [Davies, Nathan] [Davies, Sarah Smith, John Brown, Emma] 2012 Keywords: journalist’s attitudes, media ethics, professional values, responsibility, accountability, transparency, self-regulation, Estonian journalism, MediaAct. [oai:dspace.ac:123456] {et 11 Estonian} Publishing House [] [{123 0 DSpace at Publishing House     noname      0  0 false  }] {1 1377620298000 1547433963000 1369695600000} [Thesis] This is a long and complicated article [article complexity media] [] 2012 https://example.com/download/pdf/123456.pdf oai:dspace.ac:123456 https://example.com/download/pdf/123456.pdf}
+Data: {123456 [Davies, Nathan] [Davies, Sarah Smith, John Brown, Emma] 2012 Keywords: journalist’s attitudes, media ethics, professional values, responsibility, accountability, transparency, self-regulation, Estonian journalism, MediaAct. A long body of text as was extracted from the original document. [oai:dspace.ac:123456] {et 11 Estonian} Publishing House [] [{123 0 DSpace at Publishing House     noname      0  0 false  }] {1 1377620298000 1547433963000 1369695600000} [Thesis] This is a long and complicated article [article complexity media] [] 2012 [http://example.com/download/pdf/123456.pdf http://original.example.com/download/pdf/123456.pdf] https://example.com/download/pdf/123456.pdf oai:dspace.ac:123456 https://example.com/download/pdf/123456.pdf}
 `

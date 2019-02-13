@@ -21,6 +21,7 @@ type Article struct {
 	Contributors       []string      `json:"contributors"`
 	DatePublished      string        `json:"datePublished"`
 	Description        string        `json:"description"`
+	FullText           string        `json:"fullText"` // only returned if query params include 'fulltext=true'
 	Identifiers        []string      `json:"identifiers"`
 	Language           Language      `json:"language"`
 	Publisher          string        `json:"publisher"`
@@ -32,6 +33,7 @@ type Article struct {
 	Topics             []string      `json:"topics"`
 	Types              []string      `json:"types"`
 	Year               int           `json:"year"`
+	FullTextURLs       []string      `json:"fulltextUrls"` // only returned if the query params include 'urls=true'
 	FullTextIdentifier string        `json:"fulltextIdentifier"`
 	OAI                string        `json:"oai"`
 	DownloadURL        string        `json:"downloadUrl"`
