@@ -40,13 +40,13 @@ package main
 
 import (
     "github.com/nathj07/go-resourcesync/fetcher"
-    "github.com/ntahj07/go-resourcesync/resourcesync"
+    "github.com/nathj07/go-resourcesync/resourcesync"
     "github.com/davecgh/go-spew/spew"
 )
 
 func main() {
-    rs := &ResourceSync{
-        Fetcher: fetcher.BasicFetcher{} // or your own fetcher conforming to the interface
+    rs := &resourcesync.ResourceSync{
+        Fetcher: &fetcher.BasicRSFetcher{}, // or your own fetcher conforming to the interface
     }
     // Using process
     data, err := rs.Process("http://resourcesync.org/endpoint")
