@@ -23,6 +23,8 @@ const (
 	ChangeList
 	// ChangeListIndex indicates this is a change list index
 	ChangeListIndex
+	// ResourceDumpManifest indicates this is the manifest data from a resourcedump
+	ResourceDumpManifest
 )
 
 // These constants are correctly formatted strings that help to determine feed types
@@ -118,9 +120,11 @@ func (rs *ResourceSync) parseListType(feed []byte) (*ResourceData, error) {
 		rd.RType = List
 	case capabilityList:
 		rd.RType = Capability
-	case changeList, resourcedumpManifest:
+	case changeList:
 		rd.RType = ChangeList
-	default:
+	case resourcedumpManifest:
+		rd.RType= ResourceDumpManifest
+		default:
 		return nil, ErrUnsupportedFeedType
 	}
 	return rd, nil

@@ -18,25 +18,26 @@ type ResourceListIndex struct {
 
 // String implements the stringer interface for ResourceListIndex ensuring consistent printing of values
 func (rli *ResourceListIndex) String() string {
-	str := fmt.Sprintf("ResourceListIndex\nNamespace: %s, Local: %s", rli.XMLName.Space, rli.XMLName.Local)
+	sb := &strings.Builder{}
+	fmt.Fprintf(sb,"ResourceListIndex\nNamespace: %s, Local: %s", rli.XMLName.Space, rli.XMLName.Local)
 	if len(rli.RSLink) > 0 {
 		linkTexts := []string{}
-		str = fmt.Sprintf("%s\nTop Level LN", str)
+		fmt.Fprintf(sb,"\nTop Level LN")
 		for _, ln := range rli.RSLink {
 			linkTexts = append(linkTexts, ln.String())
 		}
-		str = fmt.Sprintf("%s\n%s", str, strings.Join(linkTexts, "\n"))
+		fmt.Fprintf(sb,"\n%s", strings.Join(linkTexts, "\n"))
 	}
-	str = fmt.Sprintf("%s\nTop Level MD\n%s", str, rli.RSMD)
+	fmt.Fprintf(sb,"\nTop Level MD\n%s", rli.RSMD)
 	if len(rli.IndexSet) > 0 {
 		indices := []string{}
-		str = fmt.Sprintf("%s\nIndex Set", str)
+		fmt.Fprintf(sb,"\nIndex Set")
 		for _, index := range rli.IndexSet {
 			indices = append(indices, index.String())
 		}
-		str = fmt.Sprintf("%s\n%s", str, strings.Join(indices, "\n"))
+		fmt.Fprintf(sb,"\n%s", strings.Join(indices, "\n"))
 	}
-	return str
+	return sb.String()
 }
 
 // ResourceList hods the data from a resource list
@@ -49,25 +50,26 @@ type ResourceList struct {
 
 // String implements the stringer interface for ResourceList ensuring consistent printing of values
 func (rl *ResourceList) String() string {
-	str := fmt.Sprintf("ResourceList\nNamespace: %s, Local: %s", rl.XMLName.Space, rl.XMLName.Local)
+	sb := &strings.Builder{}
+	fmt.Fprintf(sb, "ResourceList\nNamespace: %s, Local: %s", rl.XMLName.Space, rl.XMLName.Local)
 	if len(rl.RSLink) > 0 {
 		linkTexts := []string{}
-		str = fmt.Sprintf("%s\nTop Level LN", str)
+		fmt.Fprintf(sb,"\nTop Level LN")
 		for _, ln := range rl.RSLink {
 			linkTexts = append(linkTexts, ln.String())
 		}
-		str = fmt.Sprintf("%s\n%s", str, strings.Join(linkTexts, "\n"))
+		fmt.Fprintf(sb,"\n%s", strings.Join(linkTexts, "\n"))
 	}
-	str = fmt.Sprintf("%s\nTop Level MD\n%s", str, rl.RSMD)
+	fmt.Fprintf(sb,"\nTop Level MD\n%s", rl.RSMD)
 	if len(rl.URLSet) > 0 {
 		urls := []string{}
-		str = fmt.Sprintf("%s\nIndex Set", str)
+		fmt.Fprintf(sb,"\nIndex Set")
 		for _, rURL := range rl.URLSet {
 			urls = append(urls, rURL.String())
 		}
-		str = fmt.Sprintf("%s\n%s", str, strings.Join(urls, "\n"))
+		fmt.Fprintf(sb,"\n%s", strings.Join(urls, "\n"))
 	}
-	return str
+	return sb.String()
 }
 
 // ResourceURL holds the data retrieved from the url tag set within a standard sitemap.xml
@@ -124,40 +126,44 @@ type RSMD struct {
 	Until    string `xml:"until,attr"`
 	Change   string `xml:"change,attr"`
 	DateTime string `xml:"datetime,attr"`
-	// the following are used in teh resourcedump-manifest - which is CORE fastsync specific
+	// the following are used in the resourcedump-manifest - which is CORE fastsync specific
 	Path string `xml:"path,attr"`
 }
 
 // String implements the stringer interface for RSMD ensuring consistent printing of values
 // As this structure holds data from different feed types only non empty strings are printed
 func (rsmd RSMD) String() string {
-	str := fmt.Sprintf("Capability: %s ", rsmd.Capability)
+	sb := &strings.Builder{}
+	fmt.Fprintf(sb,"Capability: %s ", rsmd.Capability)
 	if rsmd.At != "" {
-		str = fmt.Sprintf("%sAt: %s ", str, rsmd.At)
+		fmt.Fprintf(sb,"At: %s ", rsmd.At)
 	}
 	if rsmd.Completed != "" {
-		str = fmt.Sprintf("%sCompleted: %s ", str, rsmd.Completed)
+		fmt.Fprintf(sb,"Completed: %s ", rsmd.Completed)
 	}
 	if rsmd.Hash != "" {
-		str = fmt.Sprintf("%sHash: %s ", str, rsmd.Hash)
+		fmt.Fprintf(sb,"Hash: %s ", rsmd.Hash)
 	}
 	if rsmd.Length != "" {
-		str = fmt.Sprintf("%sLength: %s ", str, rsmd.Length)
+		fmt.Fprintf(sb,"Length: %s ", rsmd.Length)
 	}
 	if rsmd.Type != "" {
-		str = fmt.Sprintf("%sType: %s ", str, rsmd.Type)
+		fmt.Fprintf(sb,"Type: %s ", rsmd.Type)
 	}
 	if rsmd.From != "" {
-		str = fmt.Sprintf("%sFrom: %s ", str, rsmd.From)
+		fmt.Fprintf(sb,"From: %s ", rsmd.From)
 	}
 	if rsmd.Until != "" {
-		str = fmt.Sprintf("%sUntil: %s ", str, rsmd.Until)
+		fmt.Fprintf(sb,"Until: %s ", rsmd.Until)
 	}
 	if rsmd.Change != "" {
-		str = fmt.Sprintf("%sChange: %s ", str, rsmd.Change)
+		fmt.Fprintf(sb,"Change: %s ", rsmd.Change)
 	}
 	if rsmd.DateTime != "" {
-		str = fmt.Sprintf("%sDateTime: %s ", str, rsmd.DateTime)
+		fmt.Fprintf(sb,"DateTime: %s ", rsmd.DateTime)
 	}
-	return strings.TrimSpace(str)
+	if rsmd.Path != "" {
+		fmt.Fprintf(sb,"Path: %s ", rsmd.Path)
+	}
+	return strings.TrimSpace(sb.String())
 }

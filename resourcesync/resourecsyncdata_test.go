@@ -2,6 +2,7 @@ package resourcesync
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -22,9 +23,7 @@ Loc:
 	http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0001.xml
 	 LastMod:  RSMD: Capability:  At: 2017-05-16T13:56:11Z Completed: 2017-05-16T13:56:16Z`
 	got := fmt.Sprintf("%s", expIndexRD.RLI)
-	if got != exp {
-		t.Errorf("Unexpected response printing ResourceListIndex:\nGot:\n%s\nExp:\n%s", got, exp)
-	}
+	assert.Equal(t, exp, got)
 }
 
 // TestResourceListString ensures the string formatting of a full ResourceList is as expected.
@@ -46,7 +45,6 @@ Loc:
 	 LastMod: 2017-04-13T05:26:04Z ChangeFreq:  RSMD: Capability:  Hash: md5:24012e8eb5e1aeb4659616019c6d743f Length: 411256 Type: application/pdf RSLN: Rel: describedBy HREF: http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.json`
 	// Using Sprintf here ensures the formatting is correct but also that Stringer is properly implemented
 	got := fmt.Sprintf("%s", expListRD.RL)
-	if got != exp {
-		t.Errorf("Unexpected response printing ResourceList:\nGot:\n%s\nExp:\n%s", got, exp)
-	}
+	assert.Equal(t, exp, got)
+
 }
