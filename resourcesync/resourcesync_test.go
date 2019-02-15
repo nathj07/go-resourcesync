@@ -27,13 +27,18 @@ func TestDetermineBaseType(t *testing.T) {
 			expRType: Index,
 		},
 		testData{
-			tag:      "LIST",
+			tag:      "RESOURCE-LIST",
 			testBody: testResourceList,
 			expRType: List,
 		},
 		testData{
-			tag:      "LIST",
+			tag:      "CAPABILITY-LIST",
 			testBody: testCapabilityList,
+			expRType: List,
+		},
+		testData{
+			tag:      "RD-MANIFEST",
+			testBody: testResourceDumpManifest,
 			expRType: List,
 		},
 		testData{
@@ -43,9 +48,10 @@ func TestDetermineBaseType(t *testing.T) {
 		},
 	}
 	for _, td := range testTable {
-		if gotType := rs.determineBaseType(td.testBody); gotType != td.expRType {
-			t.Errorf("%s unexpected type %d exp: %d", td.tag, gotType, td.expRType)
-		}
+		t.Run(td.tag, func(t *testing.T) {
+			assert.Equal(t, td.expRType, rs.determineBaseType(td.testBody))
+		})
+
 	}
 }
 
@@ -457,6 +463,54 @@ var expChangeListIndexRD = &ResourceData{
 				Loc: "http://example.com/20130103-changelist.xml",
 				RSMD: RSMD{
 					From: "2013-01-03T00:00:00Z",
+				},
+			},
+		},
+	},
+}
+
+var testResourceDumpManifest = []byte(`
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+  <rs:md capability="resourcedump-manifest" at="2019-02-15T09:52:00+00:00"/>
+  <url>
+    <loc>https://example.com/api-v2/articles/get/1234</loc>
+    <rs:md hash="md5:840acaaeba2d93cc0e24410e9d6adb41" length="90238" type="application/json" path="/57d/ae/1234.json"/>
+  </url>
+  <url>
+    <loc>https://example.com/api-v2/articles/get/5678</loc>
+    <rs:md hash="md5:4d847f110fc235e6b64588abd3f773c1" length="349114" type="application/json" path="/7a2/75/5678.json"/>
+  </url>
+</urlset>`)
+
+var expChangeListRDManifest = &ResourceData{
+	RType: ChangeList,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSMD: RSMD{
+			Capability: "resourcedump-manifest",
+			At:       "2019-02-15T09:52:00+00:00",
+		},
+		URLSet: []ResourceURL{
+			ResourceURL{
+				Loc: "https://example.com/api-v2/articles/get/1234",
+				RSMD: RSMD{
+					Hash: "md5:840acaaeba2d93cc0e24410e9d6adb41",
+					Length:"90238",
+					Type: "application/json",
+					Path:"/7a2/75/1234.json",
+				},
+			},
+			ResourceURL{
+				Loc: "https://example.com/api-v2/articles/get/5678",
+				RSMD: RSMD{
+					Hash: "md5:4d847f110fc235e6b64588abd3f773c1",
+					Length:"349114",
+					Type: "application/json",
+					Path:"/7a2/75/5678.json",
 				},
 			},
 		},

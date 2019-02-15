@@ -124,6 +124,8 @@ type RSMD struct {
 	Until    string `xml:"until,attr"`
 	Change   string `xml:"change,attr"`
 	DateTime string `xml:"datetime,attr"`
+	// the following are used in teh resourcedump-manifest - which is CORE fastsync specific
+	Path string `xml:"path,attr"`
 }
 
 // String implements the stringer interface for RSMD ensuring consistent printing of values
