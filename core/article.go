@@ -1,11 +1,11 @@
 package core
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/nathj07/go-resourcesync/fetcher"
 	"reflect"
+	"strings"
 )
 
 // ArticleWrapper is the top level struct for unmarshalling the CORE article data
@@ -102,13 +102,13 @@ func (ce *Extractor) ExtractArticle(rawData []byte) (*ArticleWrapper, error) {
 // String implements the Stringer interface to ensure consistent printing of the extracted article metadata.
 // If fields are empty they are omitted from the output.
 func (aw *ArticleWrapper) String() string {
-	var b bytes.Buffer
+	sb := &strings.Builder{}
 	s := reflect.ValueOf(aw).Elem()
 	typeOfT := s.Type()
 
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
-		b.WriteString(fmt.Sprintf("%s: %v\n", typeOfT.Field(i).Name, f.Interface()))
+		fmt.Fprintf(sb, "%s: %v\n", typeOfT.Field(i).Name, f.Interface())
 	}
-	return b.String()
+	return sb.String()
 }

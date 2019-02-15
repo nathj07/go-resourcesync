@@ -3,6 +3,7 @@ package resourcesync
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,31 +22,37 @@ func TestDetermineBaseType(t *testing.T) {
 	}
 
 	testTable := []testData{
-		testData{
+		{
 			tag:      "INDEX",
 			testBody: testResourceListIndex,
 			expRType: Index,
 		},
-		testData{
-			tag:      "LIST",
+		{
+			tag:      "RESOURCE-LIST",
 			testBody: testResourceList,
 			expRType: List,
 		},
-		testData{
-			tag:      "LIST",
+		{
+			tag:      "CAPABILITY-LIST",
 			testBody: testCapabilityList,
 			expRType: List,
 		},
-		testData{
+		{
+			tag:      "RD-MANIFEST",
+			testBody: testResourceDumpManifest,
+			expRType: List,
+		},
+		{
 			tag:      "UNKNOWN",
 			testBody: []byte(`<xml><unsupported>bad content</unsupported></xml>`),
 			expRType: Unknown,
 		},
 	}
 	for _, td := range testTable {
-		if gotType := rs.determineBaseType(td.testBody); gotType != td.expRType {
-			t.Errorf("%s unexpected type %d exp: %d", td.tag, gotType, td.expRType)
-		}
+		t.Run(td.tag, func(t *testing.T) {
+			assert.Equal(t, td.expRType, rs.determineBaseType(td.testBody))
+		})
+
 	}
 }
 
@@ -58,38 +65,43 @@ func TestParse(t *testing.T) {
 	}
 
 	testTable := []testData{
-		testData{
+		{
 			tag:      "INDEX",
 			testBody: testResourceListIndex,
 			expRD:    expIndexRD,
 		},
-		testData{
+		{
 			tag:      "LIST",
 			testBody: testResourceList,
 			expRD:    expListRD,
 		},
-		testData{
+		{
 			tag:      "CAPABILITY",
 			testBody: testCapabilityList,
 			expRD:    expCapabilityRD,
 		},
-		testData{
+		{
 			tag:      "CHANGELIST",
 			testBody: testChangeList,
 			expRD:    expChangeListRD,
 		},
-		testData{
+		{
 			tag:      "CHANGELISTINDEX",
 			testBody: testChangeListIndex,
 			expRD:    expChangeListIndexRD,
 		},
+		{
+			tag:      "RESOURCEDUMPMANIFEST",
+			testBody: testResourceDumpManifest,
+			expRD:    expChangeListRDManifest,
+		},
 	}
 	for _, td := range testTable {
-		gotRD, err := rs.Parse(td.testBody)
-		if err != nil {
-			t.Errorf("%s Unexpected error in parse: %v", td.tag, err)
-		}
-		assert.Equal(t, td.expRD, gotRD, td.tag)
+		t.Run(td.tag, func(t *testing.T) {
+			gotRD, err := rs.Parse(td.testBody)
+			require.Nil(t, err)
+			assert.Equal(t, td.expRD, gotRD)
+		})
 	}
 }
 
@@ -162,7 +174,7 @@ var expIndexRD = &ResourceData{
 			Local: "sitemapindex",
 		},
 		RSLink: []RSLN{
-			RSLN{
+			{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
 			},
@@ -173,14 +185,14 @@ var expIndexRD = &ResourceData{
 			Completed:  "2017-05-16T13:56:17Z",
 		},
 		IndexSet: []IndexDef{
-			IndexDef{
+			{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0000.xml\n\t",
 				RSMD: RSMD{
 					At:        "2017-05-16T13:55:38Z",
 					Completed: "2017-05-16T13:56:04Z",
 				},
 			},
-			IndexDef{
+			{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist_0001.xml\n\t",
 				RSMD: RSMD{
 					At:        "2017-05-16T13:56:11Z",
@@ -221,11 +233,11 @@ var expListRD = &ResourceData{
 			Local: "urlset",
 		},
 		RSLink: []RSLN{
-			RSLN{
+			{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml",
 			},
-			RSLN{
+			{
 				Rel:  "index",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml",
 			},
@@ -236,7 +248,7 @@ var expListRD = &ResourceData{
 			Completed:  "2017-05-16T13:56:16Z",
 		},
 		URLSet: []ResourceURL{
-			ResourceURL{
+			{
 				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.pdf\n\t",
 				LastMod: "2017-04-12T19:45:43Z",
 				RSMD: RSMD{
@@ -249,7 +261,7 @@ var expListRD = &ResourceData{
 					Href: "http://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/metadata/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9maW1tdS4yMDEyLjAwMTcwL3BkZg%3D%3D.json",
 				},
 			},
-			ResourceURL{
+			{
 				Loc:     "\n\thttp://publisher-connector.core.ac.uk/resourcesync/data/Frontiers/pdf/000/aHR0cDovL2pvdXJuYWwuZnJvbnRpZXJzaW4ub3JnL2FydGljbGUvMTAuMzM4OS9mbmV1ci4yMDE0LjAwMDgwL3BkZg%3D%3D.pdf\n\t",
 				LastMod: "2017-04-13T05:26:04Z",
 				RSMD: RSMD{
@@ -285,7 +297,7 @@ var expCapabilityRD = &ResourceData{
 			Local: "urlset",
 		},
 		RSLink: []RSLN{
-			RSLN{
+			{
 				Rel:  "up",
 				Href: "http://publisher-connector.core.ac.uk/resourcesync/.well-known/resourcesync",
 			},
@@ -294,7 +306,7 @@ var expCapabilityRD = &ResourceData{
 			Capability: "capabilitylist",
 		},
 		URLSet: []ResourceURL{
-			ResourceURL{
+			{
 				Loc: "\n\thttp://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/resourcelist-index.xml\n\t",
 				RSMD: RSMD{
 					Capability: "resourcelist",
@@ -351,11 +363,11 @@ var expChangeListRD = &ResourceData{
 			Local: "urlset",
 		},
 		RSLink: []RSLN{
-			RSLN{
+			{
 				Rel:  "up",
 				Href: "http://example.com/dataset1/capabilitylist.xml",
 			},
-			RSLN{
+			{
 				Rel:  "index",
 				Href: "http://example.com/dataset1/changelist.xml",
 			},
@@ -366,28 +378,28 @@ var expChangeListRD = &ResourceData{
 			Until:      "2013-01-03T00:00:00Z",
 		},
 		URLSet: []ResourceURL{
-			ResourceURL{
+			{
 				Loc: "http://example.com/res7.html",
 				RSMD: RSMD{
 					Change:   "created",
 					DateTime: "2013-01-02T12:00:00Z",
 				},
 			},
-			ResourceURL{
+			{
 				Loc: "http://example.com/res9.pdf",
 				RSMD: RSMD{
 					Change:   "updated",
 					DateTime: "2013-01-02T13:00:00Z",
 				},
 			},
-			ResourceURL{
+			{
 				Loc: "http://example.com/res5.tiff",
 				RSMD: RSMD{
 					Change:   "deleted",
 					DateTime: "2013-01-02T19:00:00Z",
 				},
 			},
-			ResourceURL{
+			{
 				Loc: "http://example.com/res7.html",
 				RSMD: RSMD{
 					Change:   "updated",
@@ -429,7 +441,7 @@ var expChangeListIndexRD = &ResourceData{
 			Local: "sitemapindex",
 		},
 		RSLink: []RSLN{
-			RSLN{
+			{
 				Rel:  "up",
 				Href: "http://example.com/dataset1/capabilitylist.xml",
 			},
@@ -439,24 +451,72 @@ var expChangeListIndexRD = &ResourceData{
 			From:       "2013-01-01T00:00:00Z",
 		},
 		IndexSet: []IndexDef{
-			IndexDef{
+			{
 				Loc: "http://example.com/20130101-changelist.xml",
 				RSMD: RSMD{
 					From:  "2013-01-01T00:00:00Z",
 					Until: "2013-01-02T00:00:00Z",
 				},
 			},
-			IndexDef{
+			{
 				Loc: "http://example.com/20130102-changelist.xml",
 				RSMD: RSMD{
 					From:  "2013-01-02T00:00:00Z",
 					Until: "2013-01-03T00:00:00Z",
 				},
 			},
-			IndexDef{
+			{
 				Loc: "http://example.com/20130103-changelist.xml",
 				RSMD: RSMD{
 					From: "2013-01-03T00:00:00Z",
+				},
+			},
+		},
+	},
+}
+
+var testResourceDumpManifest = []byte(`
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+  <rs:md capability="resourcedump-manifest" at="2019-02-15T09:52:00+00:00"/>
+  <url>
+    <loc>https://example.com/api-v2/articles/get/1234</loc>
+    <rs:md hash="md5:840acaaeba2d93cc0e24410e9d6adb41" length="90238" type="application/json" path="/57d/ae/1234.json"/>
+  </url>
+  <url>
+    <loc>https://example.com/api-v2/articles/get/5678</loc>
+    <rs:md hash="md5:4d847f110fc235e6b64588abd3f773c1" length="349114" type="application/json" path="/7a2/75/5678.json"/>
+  </url>
+</urlset>`)
+
+var expChangeListRDManifest = &ResourceData{
+	RType: ResourceDumpManifest,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSMD: RSMD{
+			Capability: "resourcedump-manifest",
+			At:         "2019-02-15T09:52:00+00:00",
+		},
+		URLSet: []ResourceURL{
+			{
+				Loc: "https://example.com/api-v2/articles/get/1234",
+				RSMD: RSMD{
+					Hash:   "md5:840acaaeba2d93cc0e24410e9d6adb41",
+					Length: "90238",
+					Type:   "application/json",
+					Path:   "/57d/ae/1234.json",
+				},
+			},
+			{
+				Loc: "https://example.com/api-v2/articles/get/5678",
+				RSMD: RSMD{
+					Hash:   "md5:4d847f110fc235e6b64588abd3f773c1",
+					Length: "349114",
+					Type:   "application/json",
+					Path:   "/7a2/75/5678.json",
 				},
 			},
 		},
