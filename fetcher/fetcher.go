@@ -7,14 +7,14 @@ import (
 	"net/http"
 )
 
-// RSFetcher is a small interface definning the main act of fetching resources.
+// RSFetcher is a small interface defining the main act of fetching resources.
 // This can be overwritten by the user of the client to provide more custom fetch behavior
 type RSFetcher interface {
 	Fetch(source string) ([]byte, int, error)
 }
 
 // ErrNon200Response is returned from the BasicRSFetcher for any non-200 response
-var ErrNon200Response = errors.New("Non-200 status code returned")
+var ErrNon200Response = errors.New("non-200 status code returned")
 
 // BasicRSFetcher is a simple implementation of the Fetcher interface. It is safe to use
 // but limited in capability. No timeouts or extra headers are defined. The general recommendation
