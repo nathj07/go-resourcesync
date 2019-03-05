@@ -71,7 +71,7 @@ var testFSData = []byte(`{
     "oai:clok.uclan.ac.uk:14639",
     null
   ],
-  "title": "Research Report: 'Standing on my own two feet'': Disadvantaged Teenagers, Intimate Partner Violence and Coercive Control",
+  "title": "Research Report: 'Standing on my own two feet': Disadvantaged Teenagers, Intimate Partner Violence and Coercive Control",
   "authors": [
     "Wood, Marsha",
     "Barter, Christine",
