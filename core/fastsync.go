@@ -2,6 +2,8 @@ package core
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 // FSArticle is a struct representing the data returned within a resource dump/fast sync zip file.
@@ -55,4 +57,24 @@ func (ce *Extractor) ExtractFSArticle(rawData []byte) (*FSArticle, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+// String implements the Stringer interface to ensure consistent printing of the extracted fastsync article metadata.
+// This intentionally does not print all the data, but rather the items considered pertinent
+func (fs *FSArticle) String() string {
+	sb := &strings.Builder{}
+	fmt.Fprintf(sb, "CORE ID: %s\n", fs.CoreID)
+	if fs.Title != "" {
+		fmt.Fprintf(sb, "Title: %s\n", fs.DownloadURL)
+	}
+	if len(fs.Authors) > 0{
+		fmt.Fprintf(sb, "Authors: %s\n", strings.Join(fs.Authors, ","))
+	}
+	if fs.Publisher != "" {
+		fmt.Fprintf(sb, "Published By: %s\n", fs.Publisher)
+	}
+	if fs.DownloadURL != "" {
+		fmt.Fprintf(sb, "Download From: %s\n", fs.DownloadURL)
+	}
+	return strings.TrimSpace(sb.String())
 }

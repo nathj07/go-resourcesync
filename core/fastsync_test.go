@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -13,6 +14,9 @@ func TestExtractFSArticle(t *testing.T){
 	assert.Equal(t, expFSArticle, got)
 }
 
+func TestFSArticleString(t *testing.T) {
+	assert.Equal(t, expFSArticleString, fmt.Sprintf("%s", expFSArticle))
+}
 
 //
 // Test data and expected outputs
@@ -56,7 +60,7 @@ var expFSArticle = &FSArticle{
 	Topics: []string{
 		"L500",
 	},
-	FullText: "RESEARCH REPORT\n‘Standing on my own two feet’:\nDisadvantaged Teenagers, Intimate Partner Violence  \nand Coercive Control\n",
+	FullText: "RESEARCH REPORT\n'Standing on my own two feet':\nDisadvantaged Teenagers, Intimate Partner Violence  \nand Coercive Control\n",
 }
 
 var testFSData = []byte(`{
@@ -67,7 +71,7 @@ var testFSData = []byte(`{
     "oai:clok.uclan.ac.uk:14639",
     null
   ],
-  "title": "Research Report: 'Standing on my own two feet': Disadvantaged Teenagers, Intimate Partner Violence and Coercive Control",
+  "title": "Research Report: 'Standing on my own two feet'': Disadvantaged Teenagers, Intimate Partner Violence and Coercive Control",
   "authors": [
     "Wood, Marsha",
     "Barter, Christine",
@@ -108,5 +112,11 @@ var testFSData = []byte(`{
     "openDoarId": 0,
     "roarId": 0
   },
-  "fullText": "RESEARCH REPORT\n‘Standing on my own two feet’:\nDisadvantaged Teenagers, Intimate Partner Violence  \nand Coercive Control\n"
+  "fullText": "RESEARCH REPORT\n'Standing on my own two feet':\nDisadvantaged Teenagers, Intimate Partner Violence  \nand Coercive Control\n"
 }`)
+
+var expFSArticleString = `CORE ID: 42138760
+Title: https://core.ac.uk/download/pdf/42138760.pdf
+Authors: Wood, Marsha,Barter, Christine,Berridge, David
+Published By: NSPCC
+Download From: https://core.ac.uk/download/pdf/42138760.pdf`
