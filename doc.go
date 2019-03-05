@@ -3,7 +3,7 @@
 // http://www.openarchives.org/rs/toc
 //
 // The motivation for this protocol is easing the discovery of academic research content and providing a
-// meachanism for updating those following the feed.
+// mechanism for updating those following the feed.
 //
 // With regards to this small library the motivation is simply making is easy to consume the resourcesync data
 // within a Go app.
