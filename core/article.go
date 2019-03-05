@@ -81,6 +81,7 @@ type Extractor struct {
 	Fetcher fetcher.RSFetcher
 }
 
+// Process makes a request to the CORE API and unmarshals the returned data into a Go struct.
 func (ce *Extractor) Process(target, apiKey string) (*ArticleWrapper, error) {
 	data, status, err := ce.Fetcher.Fetch(target + "?apiKey=" + apiKey)
 	if err != nil {
@@ -89,7 +90,7 @@ func (ce *Extractor) Process(target, apiKey string) (*ArticleWrapper, error) {
 	return ce.ExtractArticle(data)
 }
 
-// ExtractArticle is a convenience method around unmarshalling the CORE article metadata
+// ExtractArticle is a convenience method around unmarshaling the CORE article metadata
 func (ce *Extractor) ExtractArticle(rawData []byte) (*ArticleWrapper, error) {
 	res := &ArticleWrapper{}
 	err := json.Unmarshal(rawData, res)
