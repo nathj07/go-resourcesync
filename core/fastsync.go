@@ -23,7 +23,7 @@ type FSArticle struct{
 	PDFHashValue string `json:"pdfHashValue"`
 	Publisher string `json:"publisher"`
 	RawRecordXML string `json:"rawRecordXML"`
-	Journals []string `json:"journals"`
+	Journals []FSJournal `json:"journals"`
 	Language FSLanguage `json:"language"`
 	Relations []string `json:"relations"`
 	Year int `json:"year"`
@@ -32,21 +32,31 @@ type FSArticle struct{
 	FullText string `json:"fullText"`
 }
 
+// FSArticleEnrichment adds extra details to the article
 type FSArticleEnrichment struct {
 	References []string `json:"references"`
 	DocType FSDocType `json:"documentType"`
 }
 
+// FSDocType details the type of document being handled and the confidence CORE has in it's accuracy
 type FSDocType struct{
 	Type string `json:"type"`
 	Confidence float32 `json:"confidence"`
 }
 
+// FSLanguage holds the basic language string, the ISO 2-letter code and a CORE specific int value representing the language
 type FSLanguage struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
 	ID int `json:"id"`
 }
+
+// FSJournal holds the journal title and lit os identifiers, typically ISSN
+type FSJournal struct {
+	Title string `json:"title"`
+	Identifiers []string `json:"identifiers"`
+}
+
 // ExtractFSArticle is a convenience method around unmarshaling the article metadata returned in the CORE
 // resourcedump. There is no fetching done here, and no further processing. Rather the Go struct is returned for
 // further use by the consumer.
