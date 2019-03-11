@@ -39,7 +39,7 @@ type FSArticleEnrichment struct {
 
 type FSDocType struct{
 	Type string `json:"type"`
-	Confidence int `json:"confidence"`
+	Confidence float32 `json:"confidence"`
 }
 
 type FSLanguage struct {
