@@ -29,6 +29,7 @@ type FSArticle struct{
 	Year int `json:"year"`
 	Topics []string `json:"topics"`
 	Subjects []string `json:"subjects"`
+	URLs []string `json:"urls"`
 	FullText string `json:"fullText"`
 }
 
