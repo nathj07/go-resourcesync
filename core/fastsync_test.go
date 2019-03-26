@@ -60,6 +60,10 @@ var expFSArticle = &FSArticle{
 	Topics: []string{
 		"L500",
 	},
+	URLs :[]string{
+		"http://example.com/1",
+		"http://www.example.com/2",
+	},
 	FullText: "RESEARCH REPORT\n'Standing on my own two feet':\nDisadvantaged Teenagers, Intimate Partner Violence  \nand Coercive Control\n",
 }
 
@@ -106,6 +110,7 @@ var testFSData = []byte(`{
   "subject": [
     "L500"
   ],
+ "urls": ["http://example.com/1", "http://www.example.com/2"],
   "repositories": {
     "id": "18",
     "name": "CLoK",
