@@ -36,7 +36,23 @@ var expFSArticle = &FSArticle{
 		"Berridge, David",
 	},
 	Enrichments: FSArticleEnrichment {
-		References: []string { },
+		References: []FSReference {
+			{
+				ID: 36385704,
+				Title: "Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
+				Authors: []string{},
+				Date: "1993",
+				DOI: "10.1056/test-doi",
+				Raw: "White, K (1993):We Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
+			},
+			{
+				ID: 36385691,
+				Title: "Development,Africa Bureau, Office of Sustainable Development.Washington,",
+				Authors: []string{},
+				Date: "1997",
+				Raw: "U.S Agency for International Development,Africa Bureau, Office of Sustainable Development.Washington, D.C. RAND (1997): Population Matters:A RAND Program of Policy-relevant Research Communication. RAND, Santa Monica, California, USA.",
+			},
+		},
 		DocType: FSDocType {
 			Type: "research",
 			Confidence: 1,
@@ -82,7 +98,26 @@ var testFSData = []byte(`{
     "Berridge, David"
   ],
   "enrichments": {
-    "references": [],
+    "references": [
+      {
+        "id": 36385704,
+        "title": "Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
+        "authors": [],
+        "date": "1993",
+        "doi": "10.1056/test-doi",
+        "raw": "White, K (1993):We Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
+        "cites": null
+      },
+      {
+        "id": 36385691,
+        "title": "Development,Africa Bureau, Office of Sustainable Development.Washington,",
+        "authors": [],
+        "date": "1997",
+        "doi": null,
+        "raw": "U.S Agency for International Development,Africa Bureau, Office of Sustainable Development.Washington, D.C. RAND (1997): Population Matters:A RAND Program of Policy-relevant Research Communication. RAND, Santa Monica, California, USA.",
+        "cites": null
+      }
+    ],
     "documentType": {
       "type": "research",
       "confidence": 1
@@ -110,7 +145,10 @@ var testFSData = []byte(`{
   "subject": [
     "L500"
   ],
- "urls": ["http://example.com/1", "http://www.example.com/2"],
+  "urls": [
+    "http://example.com/1",
+    "http://www.example.com/2"
+  ],
   "repositories": {
     "id": "18",
     "name": "CLoK",

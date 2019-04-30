@@ -35,10 +35,20 @@ type FSArticle struct{
 
 // FSArticleEnrichment adds extra details to the article
 type FSArticleEnrichment struct {
-	References []string `json:"references"`
+	References []FSReference `json:"references"`
 	DocType FSDocType `json:"documentType"`
 }
 
+// FSReference holds the enrichment reference data
+type FSReference struct {
+	ID int `json:"id"`
+	Title string `json:"title"`
+	Authors []string `json:"authors"`
+	Date string `json:"Date"`
+	DOI string `json:"doi"`
+	Raw string `json:"raw"`
+	Cites []int `json:"cites"`
+}
 // FSDocType details the type of document being handled and the confidence CORE has in it's accuracy
 type FSDocType struct{
 	Type string `json:"type"`
