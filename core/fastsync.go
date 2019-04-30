@@ -47,7 +47,7 @@ type FSReference struct {
 	Date string `json:"Date"`
 	DOI string `json:"doi"`
 	Raw string `json:"raw"`
-	Cites string `json:"cites"`
+	Cites []int `json:"cites"`
 }
 // FSDocType details the type of document being handled and the confidence CORE has in it's accuracy
 type FSDocType struct{

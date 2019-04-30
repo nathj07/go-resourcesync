@@ -42,6 +42,7 @@ var expFSArticle = &FSArticle{
 				Title: "Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
 				Authors: []string{},
 				Date: "1993",
+				DOI: "10.1056/test-doi",
 				Raw: "White, K (1993):We Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
 			},
 			{
@@ -103,7 +104,7 @@ var testFSData = []byte(`{
         "title": "Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
         "authors": [],
         "date": "1993",
-        "doi": null,
+        "doi": "10.1056/test-doi",
         "raw": "White, K (1993):We Couldn't Have Asked for More: Lessons Learned in Information Dissemination.Technologies for Primary Health Care (PRITECH), Occasional Operations Papers. Management Sciences for Health,Arlington,Virginia.",
         "cites": null
       },
