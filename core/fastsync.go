@@ -23,7 +23,7 @@ type FSArticle struct{
 	PDFHashValue string `json:"pdfHashValue"`
 	Publisher string `json:"publisher"`
 	RawRecordXML string `json:"rawRecordXML"`
-	Journal FSJournal `json:"journals"`
+	Journals []FSJournal `json:"journals"`
 	Language FSLanguage `json:"language"`
 	Relations []string `json:"relations"`
 	Year int `json:"year"`
