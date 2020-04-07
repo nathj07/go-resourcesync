@@ -8,50 +8,55 @@ import (
 
 // FSArticle is a struct representing the data returned within a resource dump/fast sync zip file.
 // The structure is defined https://core.ac.uk/services/fastsync#structure
-type FSArticle struct{
-	DOI string `json:"doi"`
-	CoreID string `json:"coreId"`
-	Identifiers []string `json:"identifiers"` // additional identifiers, we get no further information on what they are
-	Title string `json:"title"`
-	Authors []string `json:"authors"`
-	Enrichments FSArticleEnrichment `json:"enrichments"`
-	Contributors []string `json:"contributors"`
-	DatePublished string `json:"datePublished"`
-	Abstract string `json:"abstract"`
-	DownloadURL string `json:"downloadUrl"`
-	FullTextIdentifier string `json:"fullTextIdentifier"`
-	PDFHashValue string `json:"pdfHashValue"`
-	Publisher string `json:"publisher"`
-	RawRecordXML string `json:"rawRecordXML"`
-	Journals []FSJournal `json:"journals"`
-	Language FSLanguage `json:"language"`
-	Relations []string `json:"relations"`
-	Year int `json:"year"`
-	Topics []string `json:"topics"`
-	Subjects []string `json:"subjects"`
-	URLs []string `json:"urls"`
-	FullText string `json:"fullText"`
+type FSArticle struct {
+	DOI                string              `json:"doi"`
+	CoreID             string              `json:"coreId"`
+	OAIID              string              `json:"oai"`
+	MAGID              string              `json:"magId"`
+	Identifiers        []string            `json:"identifiers"` // additional identifiers, we get no further information on what they are
+	Title              string              `json:"title"`
+	Authors            []string            `json:"authors"`
+	Enrichments        FSArticleEnrichment `json:"enrichments"`
+	Contributors       []string            `json:"contributors"`
+	DatePublished      string              `json:"datePublished"`
+	Abstract           string              `json:"abstract"`
+	DownloadURL        string              `json:"downloadUrl"`
+	FullTextIdentifier string              `json:"fullTextIdentifier"`
+	PDFHashValue       string              `json:"pdfHashValue"`
+	Publisher          string              `json:"publisher"`
+	RawRecordXML       string              `json:"rawRecordXML"`
+	Journals           []FSJournal         `json:"journals"`
+	Language           FSLanguage          `json:"language"`
+	Relations          []string            `json:"relations"`
+	Year               int                 `json:"year"`
+	Topics             []string            `json:"topics"`
+	Subjects           []string            `json:"subjects"`
+	URLs               []string            `json:"urls"`
+	FullText           string              `json:"fullText"`
+	ISSN               string              `json:"issn"`
 }
 
 // FSArticleEnrichment adds extra details to the article
 type FSArticleEnrichment struct {
-	References []FSReference `json:"references"`
-	DocType FSDocType `json:"documentType"`
+	References    []FSReference `json:"references"`
+	DocType       FSDocType     `json:"documentType"`
+	CitationCount int           `json:"citationCount"`
 }
 
 // FSReference holds the enrichment reference data
 type FSReference struct {
-	ID int `json:"id"`
-	Title string `json:"title"`
+	ID      int      `json:"id"`
+	Title   string   `json:"title"`
 	Authors []string `json:"authors"`
-	Date string `json:"Date"`
-	DOI string `json:"doi"`
-	Raw string `json:"raw"`
-	Cites []int `json:"cites"`
+	Date    string   `json:"Date"`
+	DOI     string   `json:"doi"`
+	Raw     string   `json:"raw"`
+	Cites   []int    `json:"cites"`
 }
+
 // FSDocType details the type of document being handled and the confidence CORE has in it's accuracy
-type FSDocType struct{
-	Type string `json:"type"`
+type FSDocType struct {
+	Type       string  `json:"type"`
 	Confidence float32 `json:"confidence"`
 }
 
@@ -59,12 +64,12 @@ type FSDocType struct{
 type FSLanguage struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
-	ID int `json:"id"`
+	ID   int    `json:"id"`
 }
 
 // FSJournal holds the journal title and lit os identifiers, typically ISSN
 type FSJournal struct {
-	Title string `json:"title"`
+	Title       string   `json:"title"`
 	Identifiers []string `json:"identifiers"`
 }
 
@@ -88,7 +93,7 @@ func (fs *FSArticle) String() string {
 	if fs.Title != "" {
 		fmt.Fprintf(sb, "Title: %s\n", fs.DownloadURL)
 	}
-	if len(fs.Authors) > 0{
+	if len(fs.Authors) > 0 {
 		fmt.Fprintf(sb, "Authors: %s\n", strings.Join(fs.Authors, ","))
 	}
 	if fs.Publisher != "" {
