@@ -19,23 +19,23 @@ type ResourceListIndex struct {
 // String implements the stringer interface for ResourceListIndex ensuring consistent printing of values
 func (rli *ResourceListIndex) String() string {
 	sb := &strings.Builder{}
-	fmt.Fprintf(sb,"ResourceListIndex\nNamespace: %s, Local: %s", rli.XMLName.Space, rli.XMLName.Local)
+	fmt.Fprintf(sb, "ResourceListIndex\nNamespace: %s, Local: %s", rli.XMLName.Space, rli.XMLName.Local)
 	if len(rli.RSLink) > 0 {
 		linkTexts := []string{}
-		fmt.Fprintf(sb,"\nTop Level LN")
+		fmt.Fprintf(sb, "\nTop Level LN")
 		for _, ln := range rli.RSLink {
 			linkTexts = append(linkTexts, ln.String())
 		}
-		fmt.Fprintf(sb,"\n%s", strings.Join(linkTexts, "\n"))
+		fmt.Fprintf(sb, "\n%s", strings.Join(linkTexts, "\n"))
 	}
-	fmt.Fprintf(sb,"\nTop Level MD\n%s", rli.RSMD)
+	fmt.Fprintf(sb, "\nTop Level MD\n%s", rli.RSMD)
 	if len(rli.IndexSet) > 0 {
 		indices := []string{}
-		fmt.Fprintf(sb,"\nIndex Set")
+		fmt.Fprintf(sb, "\nIndex Set")
 		for _, index := range rli.IndexSet {
 			indices = append(indices, index.String())
 		}
-		fmt.Fprintf(sb,"\n%s", strings.Join(indices, "\n"))
+		fmt.Fprintf(sb, "\n%s", strings.Join(indices, "\n"))
 	}
 	return sb.String()
 }
@@ -54,20 +54,20 @@ func (rl *ResourceList) String() string {
 	fmt.Fprintf(sb, "ResourceList\nNamespace: %s, Local: %s", rl.XMLName.Space, rl.XMLName.Local)
 	if len(rl.RSLink) > 0 {
 		linkTexts := []string{}
-		fmt.Fprintf(sb,"\nTop Level LN")
+		fmt.Fprintf(sb, "\nTop Level LN")
 		for _, ln := range rl.RSLink {
 			linkTexts = append(linkTexts, ln.String())
 		}
-		fmt.Fprintf(sb,"\n%s", strings.Join(linkTexts, "\n"))
+		fmt.Fprintf(sb, "\n%s", strings.Join(linkTexts, "\n"))
 	}
-	fmt.Fprintf(sb,"\nTop Level MD\n%s", rl.RSMD)
+	fmt.Fprintf(sb, "\nTop Level MD\n%s", rl.RSMD)
 	if len(rl.URLSet) > 0 {
 		urls := []string{}
-		fmt.Fprintf(sb,"\nIndex Set")
+		fmt.Fprintf(sb, "\nIndex Set")
 		for _, rURL := range rl.URLSet {
 			urls = append(urls, rURL.String())
 		}
-		fmt.Fprintf(sb,"\n%s", strings.Join(urls, "\n"))
+		fmt.Fprintf(sb, "\n%s", strings.Join(urls, "\n"))
 	}
 	return sb.String()
 }
@@ -117,10 +117,10 @@ type RSMD struct {
 	Capability string `xml:"capability,attr"`
 	At         string `xml:"at,attr"`
 	Completed  string `xml:"completed,attr"`
+	Type       string `xml:"type,attr"`
 	// the next three are used on ResourceList only
 	Hash   string `xml:"hash,attr"`
 	Length string `xml:"length,attr"`
-	Type   string `xml:"type,attr"`
 	// the following are used on ChangeList only
 	From     string `xml:"from,attr"`
 	Until    string `xml:"until,attr"`
@@ -134,36 +134,36 @@ type RSMD struct {
 // As this structure holds data from different feed types only non empty strings are printed
 func (rsmd RSMD) String() string {
 	sb := &strings.Builder{}
-	fmt.Fprintf(sb,"Capability: %s ", rsmd.Capability)
+	fmt.Fprintf(sb, "Capability: %s ", rsmd.Capability)
 	if rsmd.At != "" {
-		fmt.Fprintf(sb,"At: %s ", rsmd.At)
+		fmt.Fprintf(sb, "At: %s ", rsmd.At)
 	}
 	if rsmd.Completed != "" {
-		fmt.Fprintf(sb,"Completed: %s ", rsmd.Completed)
+		fmt.Fprintf(sb, "Completed: %s ", rsmd.Completed)
 	}
 	if rsmd.Hash != "" {
-		fmt.Fprintf(sb,"Hash: %s ", rsmd.Hash)
+		fmt.Fprintf(sb, "Hash: %s ", rsmd.Hash)
 	}
 	if rsmd.Length != "" {
-		fmt.Fprintf(sb,"Length: %s ", rsmd.Length)
+		fmt.Fprintf(sb, "Length: %s ", rsmd.Length)
 	}
 	if rsmd.Type != "" {
-		fmt.Fprintf(sb,"Type: %s ", rsmd.Type)
+		fmt.Fprintf(sb, "Type: %s ", rsmd.Type)
 	}
 	if rsmd.From != "" {
-		fmt.Fprintf(sb,"From: %s ", rsmd.From)
+		fmt.Fprintf(sb, "From: %s ", rsmd.From)
 	}
 	if rsmd.Until != "" {
-		fmt.Fprintf(sb,"Until: %s ", rsmd.Until)
+		fmt.Fprintf(sb, "Until: %s ", rsmd.Until)
 	}
 	if rsmd.Change != "" {
-		fmt.Fprintf(sb,"Change: %s ", rsmd.Change)
+		fmt.Fprintf(sb, "Change: %s ", rsmd.Change)
 	}
 	if rsmd.DateTime != "" {
-		fmt.Fprintf(sb,"DateTime: %s ", rsmd.DateTime)
+		fmt.Fprintf(sb, "DateTime: %s ", rsmd.DateTime)
 	}
 	if rsmd.Path != "" {
-		fmt.Fprintf(sb,"Path: %s ", rsmd.Path)
+		fmt.Fprintf(sb, "Path: %s ", rsmd.Path)
 	}
 	return strings.TrimSpace(sb.String())
 }

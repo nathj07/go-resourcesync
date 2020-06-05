@@ -3,10 +3,11 @@ package resourcesync
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/nathj07/go-resourcesync/fetcher"
 
@@ -117,6 +118,18 @@ func TestProcess(t *testing.T) {
 	assert.Equal(t, expIndexRD, rd)
 }
 
+func TestProcessDatadumpChangeList(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, string(testChangeListDataDumps))
+	}))
+	rs := New(&fetcher.BasicRSFetcher{})
+	rd, err := rs.Process(server.URL)
+	if err != nil {
+		t.Fatalf("Unexpected error from Process: %v", err)
+	}
+	assert.Equal(t, expDataDumpData, rd)
+}
+
 func TestProcessUnsupportedType(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, string(testUnsupported))
@@ -148,6 +161,79 @@ func TestProcessUnsupportedXML(t *testing.T) {
 //
 // Test Data
 //
+
+var testChangeListDataDumps = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+<rs:md capability="changelist" from="2020-06-02T00:00:00" until="2020-06-04T00:00:00"/>
+<url>
+<loc>https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-18T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="2312" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563098"/>
+</url>
+<url>
+<loc>https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-25T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="3325581840" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563184"/>
+</url>
+<url>
+<loc>https://core.ac.uk/exports/changedumps/2020-03-25T00:00:00-to-2020-04-01T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="37172173208" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563220"/>
+</url>
+<url>
+<loc>https://core.ac.uk/exports/changedumps/2020-04-01T00:00:00-to-2020-04-08T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="7995953756" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563252"/>
+</url>
+</urlset>`)
+
+var expDataDumpData = &ResourceData{
+	RType: ChangeList,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSMD: RSMD{
+			Capability: "changelist",
+			From:       "2020-06-02T00:00:00",
+			Until:      "2020-06-04T00:00:00",
+		},
+		URLSet: []ResourceURL{
+			{
+				Loc: "https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-18T00:00:00.tar.xz",
+				RSMD: RSMD{
+					Type:      "application/x-xz",
+					Length:    "2312",
+					At:        "2020-06-02T00:00:00",
+					Completed: "2020-06-05T03:15:16.563098",
+				},
+			},
+			{
+				Loc: "https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-25T00:00:00.tar.xz",
+				RSMD: RSMD{
+					Type:      "application/x-xz",
+					Length:    "3325581840",
+					At:        "2020-06-02T00:00:00",
+					Completed: "2020-06-05T03:15:16.563184",
+				},
+			},
+			{
+				Loc: "https://core.ac.uk/exports/changedumps/2020-03-25T00:00:00-to-2020-04-01T00:00:00.tar.xz",
+				RSMD: RSMD{
+					Type:      "application/x-xz",
+					Length:    "37172173208",
+					At:        "2020-06-02T00:00:00",
+					Completed: "2020-06-05T03:15:16.563220",
+				},
+			},
+			{
+				Loc: "https://core.ac.uk/exports/changedumps/2020-04-01T00:00:00-to-2020-04-08T00:00:00.tar.xz",
+				RSMD: RSMD{
+					Type:      "application/x-xz",
+					Length:    "7995953756",
+					At:        "2020-06-02T00:00:00",
+					Completed: "2020-06-05T03:15:16.563252",
+				},
+			},
+		},
+	},
+}
 
 var testResourceListIndex = []byte(`<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
 	<rs:ln href="http://publisher-connector.core.ac.uk/resourcesync/sitemaps/Frontiers/pdf/capabilitylist.xml" rel="up"/>
