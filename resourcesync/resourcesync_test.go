@@ -44,6 +44,11 @@ func TestDetermineBaseType(t *testing.T) {
 			expRType: List,
 		},
 		{
+			tag:      "CD-MANIFEST",
+			testBody: testChangeDumpManifest,
+			expRType: List,
+		},
+		{
 			tag:      "UNKNOWN",
 			testBody: []byte(`<xml><unsupported>bad content</unsupported></xml>`),
 			expRType: Unknown,
@@ -95,6 +100,11 @@ func TestParse(t *testing.T) {
 			tag:      "RESOURCEDUMPMANIFEST",
 			testBody: testResourceDumpManifest,
 			expRD:    expChangeListRDManifest,
+		},
+		{
+			tag:      "CHANGEDUMPMANIFEST",
+			testBody: testChangeDumpManifest,
+			expRD:    expChangeListCDManifest,
 		},
 	}
 	for _, td := range testTable {
@@ -603,6 +613,73 @@ var expChangeListRDManifest = &ResourceData{
 					Length: "349114",
 					Type:   "application/json",
 					Path:   "/7a2/75/5678.json",
+				},
+			},
+		},
+	},
+}
+
+var testChangeDumpManifest = []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+	<rs:md capability="changedump-manifest" from="2020-03-18T00:00:00" until="2020-03-19T00:00:00"/>
+	<url>
+		<loc>https://core.ac.uk/api-v2/articles/get/287886262</loc>
+		<rs:md change="created" datetime="2020-03-18 01:20:10" hash="md5:c92998fe48afaebc6369d09095c3c046" length="861" type="application/json" path="fd8/43/287886262.json"/>
+	</url>
+	<url>
+		<loc>https://core.ac.uk/api-v2/articles/get/287884835</loc>
+		<rs:md change="created" datetime="2020-03-18 00:02:53" hash="md5:beb7aa17ae731829e06d6537e75b2202" length="4271" type="application/json" path="df1/23/287884835.json"/> 
+	</url>
+	<url>
+		<loc>https://core.ac.uk/api-v2/articles/get/287884857</loc>
+		<rs:md change="created" datetime="2020-03-18 00:02:57" hash="md5:7dabd7118f965b4d33777a1728eaafe7" length="64151" type="application/json" path="130/0e/287884857.json"/>
+	</url>
+</urlset>`)
+
+var expChangeListCDManifest = &ResourceData{
+	RType: ChangeDumpManifest,
+	RL: &ResourceList{
+		XMLName: xml.Name{
+			Space: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Local: "urlset",
+		},
+		RSMD: RSMD{
+			Capability: "changedump-manifest",
+			From:       "2020-03-18T00:00:00",
+			Until:      "2020-03-19T00:00:00",
+		},
+		URLSet: []ResourceURL{
+			{
+				Loc: "https://core.ac.uk/api-v2/articles/get/287886262",
+				RSMD: RSMD{
+					Hash:     "md5:c92998fe48afaebc6369d09095c3c046",
+					Length:   "861",
+					Type:     "application/json",
+					Path:     "fd8/43/287886262.json",
+					Change:   "created",
+					DateTime: "2020-03-18 01:20:10",
+				},
+			},
+			{
+				Loc: "https://core.ac.uk/api-v2/articles/get/287884835",
+				RSMD: RSMD{
+					Hash:     "md5:beb7aa17ae731829e06d6537e75b2202",
+					Length:   "4271",
+					Type:     "application/json",
+					Path:     "df1/23/287884835.json",
+					Change:   "created",
+					DateTime: "2020-03-18 00:02:53",
+				},
+			},
+			{
+				Loc: "https://core.ac.uk/api-v2/articles/get/287884857",
+				RSMD: RSMD{
+					Hash:     "md5:7dabd7118f965b4d33777a1728eaafe7",
+					Length:   "64151",
+					Type:     "application/json",
+					Path:     "130/0e/287884857.json",
+					Change:   "created",
+					DateTime: "2020-03-18 00:02:57",
 				},
 			},
 		},
