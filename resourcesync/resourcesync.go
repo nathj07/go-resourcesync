@@ -25,6 +25,8 @@ const (
 	ChangeListIndex
 	// ResourceDumpManifest indicates this is the manifest data from a resourcedump
 	ResourceDumpManifest
+	// ChangeDumpManifest indicates this is the manifest data from a changedump - a weekly generate dump of CORE data
+	ChangeDumpManifest
 )
 
 // These constants are correctly formatted strings that help to determine feed types
@@ -32,9 +34,10 @@ const (
 	capabilityList = "capabilitylist"
 	resourceList   = "resourcelist"
 	changeList     = "changelist"
-	// resourcedumpManifest is specific to the CORE fastsync. It is an xml file within the retrieved zip file that details
+	// the following are specific to the CORE fastsync. It is an xml file within the retrieved zip file that details
 	// the relative local path for the unpacked items. Other than an extra attribute it conforms to the same schema as a changelist.
 	resourcedumpManifest = "resourcedump-manifest"
+	changedumpManifest   = "changedump-manifest"
 )
 
 // ErrUnsupportedFeedType is used when the feed type is not one of the supported set
@@ -123,8 +126,10 @@ func (rs *ResourceSync) parseListType(feed []byte) (*ResourceData, error) {
 	case changeList:
 		rd.RType = ChangeList
 	case resourcedumpManifest:
-		rd.RType= ResourceDumpManifest
-		default:
+		rd.RType = ResourceDumpManifest
+	case changedumpManifest:
+		rd.RType = ChangeDumpManifest
+	default:
 		return nil, ErrUnsupportedFeedType
 	}
 	return rd, nil
