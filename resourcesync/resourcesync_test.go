@@ -175,20 +175,20 @@ func TestProcessUnsupportedXML(t *testing.T) {
 var testChangeListDataDumps = []byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
 <rs:md capability="changelist" from="2020-06-02T00:00:00" until="2020-06-04T00:00:00"/>
 <url>
-<loc>https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-18T00:00:00.tar.xz</loc>
-<rs:md type="application/x-xz" length="2312" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563098"/>
+<loc>https://core.ac.uk/exports/changedumps/2020-04-04T00:00:00-to-2020-04-05T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="75888652" at="2020-06-22T00:00:00" completed="2020-06-24T20:36:26.441694" from="2020-04-04T00:00:00" until="2020-04-05T00:00:00"/>
 </url>
 <url>
-<loc>https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-25T00:00:00.tar.xz</loc>
-<rs:md type="application/x-xz" length="3325581840" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563184"/>
+<loc>https://core.ac.uk/exports/changedumps/2020-04-02T00:00:00-to-2020-04-03T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="159891144" at="2020-06-22T00:00:00" completed="2020-06-24T20:36:26.441797" from="2020-04-02T00:00:00" until="2020-04-03T00:00:00"/>
 </url>
 <url>
-<loc>https://core.ac.uk/exports/changedumps/2020-03-25T00:00:00-to-2020-04-01T00:00:00.tar.xz</loc>
-<rs:md type="application/x-xz" length="37172173208" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563220"/>
+<loc>https://core.ac.uk/exports/changedumps/2020-04-05T00:00:00-to-2020-04-06T00:00:00.tar.xz</loc>
+<rs:md type="application/x-xz" length="6003549956" at="2020-06-22T00:00:00" completed="2020-06-24T20:36:26.441832" from="2020-04-05T00:00:00" until="2020-04-06T00:00:00"/>
 </url>
 <url>
 <loc>https://core.ac.uk/exports/changedumps/2020-04-01T00:00:00-to-2020-04-08T00:00:00.tar.xz</loc>
-<rs:md type="application/x-xz" length="7995953756" at="2020-06-02T00:00:00" completed="2020-06-05T03:15:16.563252"/>
+<rs:md type="application/x-xz" length="7995953756" at="2020-06-22T00:00:00" completed="2020-06-24T20:36:26.441864" from="2020-04-01T00:00:00" until="2020-04-08T00:00:00"/>
 </url>
 </urlset>`)
 
@@ -206,30 +206,36 @@ var expDataDumpData = &ResourceData{
 		},
 		URLSet: []ResourceURL{
 			{
-				Loc: "https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-18T00:00:00.tar.xz",
+				Loc: "https://core.ac.uk/exports/changedumps/2020-04-04T00:00:00-to-2020-04-05T00:00:00.tar.xz",
 				RSMD: RSMD{
 					Type:      "application/x-xz",
-					Length:    "2312",
-					At:        "2020-06-02T00:00:00",
-					Completed: "2020-06-05T03:15:16.563098",
+					Length:    "75888652",
+					At:        "2020-06-22T00:00:00",
+					Completed: "2020-06-24T20:36:26.441694",
+					From:      "2020-04-04T00:00:00",
+					Until:     "2020-04-05T00:00:00",
 				},
 			},
 			{
-				Loc: "https://core.ac.uk/exports/changedumps/2020-03-18T00:00:00-to-2020-03-25T00:00:00.tar.xz",
+				Loc: "https://core.ac.uk/exports/changedumps/2020-04-02T00:00:00-to-2020-04-03T00:00:00.tar.xz",
 				RSMD: RSMD{
 					Type:      "application/x-xz",
-					Length:    "3325581840",
-					At:        "2020-06-02T00:00:00",
-					Completed: "2020-06-05T03:15:16.563184",
+					Length:    "159891144",
+					At:        "2020-06-22T00:00:00",
+					Completed: "2020-06-24T20:36:26.441797",
+					From:      "2020-04-02T00:00:00",
+					Until:     "2020-04-03T00:00:00",
 				},
 			},
 			{
-				Loc: "https://core.ac.uk/exports/changedumps/2020-03-25T00:00:00-to-2020-04-01T00:00:00.tar.xz",
+				Loc: "https://core.ac.uk/exports/changedumps/2020-04-05T00:00:00-to-2020-04-06T00:00:00.tar.xz",
 				RSMD: RSMD{
 					Type:      "application/x-xz",
-					Length:    "37172173208",
-					At:        "2020-06-02T00:00:00",
-					Completed: "2020-06-05T03:15:16.563220",
+					Length:    "6003549956",
+					At:        "2020-06-22T00:00:00",
+					Completed: "2020-06-24T20:36:26.441832",
+					From:      "2020-04-05T00:00:00",
+					Until:     "2020-04-06T00:00:00",
 				},
 			},
 			{
@@ -237,8 +243,10 @@ var expDataDumpData = &ResourceData{
 				RSMD: RSMD{
 					Type:      "application/x-xz",
 					Length:    "7995953756",
-					At:        "2020-06-02T00:00:00",
-					Completed: "2020-06-05T03:15:16.563252",
+					At:        "2020-06-22T00:00:00",
+					Completed: "2020-06-24T20:36:26.441864",
+					From:      "2020-04-01T00:00:00",
+					Until:     "2020-04-08T00:00:00",
 				},
 			},
 		},
