@@ -56,25 +56,25 @@ func TestBasicFetcherFetch(t *testing.T) {
 	}
 
 	testTable := []testData{
-		testData{
+		{
 			path:       "/200",
 			expStatus:  http.StatusOK,
 			expErr:     nil,
 			expContent: []byte(fmt.Sprintf("OK, %q", "/200")),
 		},
-		testData{
+		{
 			path:       "/404",
 			expStatus:  http.StatusNotFound,
 			expErr:     ErrNon200Response,
 			expContent: nil,
 		},
-		testData{
+		{
 			path:       "/403",
 			expStatus:  http.StatusForbidden,
 			expErr:     ErrNon200Response,
 			expContent: nil,
 		},
-		testData{
+		{
 			path:       "/503",
 			expStatus:  http.StatusBadGateway,
 			expErr:     ErrNon200Response,

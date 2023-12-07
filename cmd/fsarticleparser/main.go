@@ -27,7 +27,7 @@ Flags:`)
 	readJsonFile()
 }
 
-func readJsonFile(){
+func readJsonFile() {
 	data, err := ioutil.ReadFile(*jsonFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to read file: %q - %v\n", *jsonFile, err)
