@@ -24,7 +24,7 @@ type FSArticle struct {
 	FullTextIdentifier string              `json:"fullTextIdentifier"`
 	PDFHashValue       string              `json:"pdfHashValue"`
 	Publisher          string              `json:"publisher"`
-	RawRecordXML       string              `json:"rawRecordXML"`
+	RawRecordXML       string              `json:"rawRecordXml"`
 	Journals           []FSJournal         `json:"journals"`
 	Language           FSLanguage          `json:"language"`
 	Relations          []string            `json:"relations"`
