@@ -24,7 +24,7 @@ type FSArticle struct {
 	FullTextIdentifier string              `json:"fullTextIdentifier"`
 	PDFHashValue       string              `json:"pdfHashValue"`
 	Publisher          string              `json:"publisher"`
-	RawRecordXML       string              `json:"rawRecordXML"`
+	RawRecordXML       string              `json:"rawRecordXml"`
 	Journals           []FSJournal         `json:"journals"`
 	Language           FSLanguage          `json:"language"`
 	Relations          []string            `json:"relations"`
@@ -48,16 +48,50 @@ type FSReference struct {
 	ID      int      `json:"id"`
 	Title   string   `json:"title"`
 	Authors []string `json:"authors"`
-	Date    string   `json:"Date"`
+	Date    string   `json:"date"`
 	DOI     string   `json:"doi"`
 	Raw     string   `json:"raw"`
 	Cites   []int    `json:"cites"`
 }
 
-// FSDocType details the type of document being handled and the confidence CORE has in it's accuracy
+// FSDocType details the type(s) of document being handled and the confidence CORE has in its accuracy.
+// CORE returns "type" as either a single string or an array of strings; both are normalised into Type.
 type FSDocType struct {
-	Type       string  `json:"type"`
-	Confidence float32 `json:"confidence"`
+	Type       []string `json:"type"`
+	Confidence float32  `json:"confidence"`
+}
+
+// UnmarshalJSON allows documentType.type to be decoded whether CORE returns it as a
+// single JSON string, an array of strings, or null. Everything is normalised into Type.
+func (d *FSDocType) UnmarshalJSON(data []byte) error {
+	// Capture type as raw so we can inspect its shape after decoding the rest.
+	var aux struct {
+		Type       json.RawMessage `json:"type"`
+		Confidence float32         `json:"confidence"`
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	d.Confidence = aux.Confidence
+
+	if len(aux.Type) == 0 || string(aux.Type) == "null" {
+		d.Type = nil
+		return nil
+	}
+
+	// An array of strings decodes directly; a scalar string will fail here and fall through.
+	var arr []string
+	if err := json.Unmarshal(aux.Type, &arr); err == nil {
+		d.Type = arr
+		return nil
+	}
+
+	var single string
+	if err := json.Unmarshal(aux.Type, &single); err != nil {
+		return err
+	}
+	d.Type = []string{single}
+	return nil
 }
 
 // FSLanguage holds the basic language string, the ISO 2-letter code and a CORE specific int value representing the language
@@ -91,7 +125,7 @@ func (fs *FSArticle) String() string {
 	sb := &strings.Builder{}
 	fmt.Fprintf(sb, "CORE ID: %s\n", fs.CoreID)
 	if fs.Title != "" {
-		fmt.Fprintf(sb, "Title: %s\n", fs.DownloadURL)
+		fmt.Fprintf(sb, "Title: %s\n", fs.Title)
 	}
 	if len(fs.Authors) > 0 {
 		fmt.Fprintf(sb, "Authors: %s\n", strings.Join(fs.Authors, ","))

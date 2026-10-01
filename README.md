@@ -19,6 +19,10 @@ For example if processing at the index level it is up to the caller to decide to
 `core` This package handles the CORE specific details, it is responsible for processing the CORE article metadata format. For more details please review the [CORE API](https://core.ac.uk/docs/)
 or see the main [CORE website](https://core.ac.uk/).
 
+## Breaking Changes
+
+- `core.FSDocType.Type` changed from `string` to `[]string`. CORE returns `enrichments.documentType.type` as either a single string or an array of strings; both are now normalised into the `Type` slice (a single string becomes a one-element slice, `null`/absent becomes `nil`). Callers reading `.Type` must update accordingly (e.g. iterate the slice, or take `Type[0]` when non-empty).
+
 `fetcher` describes a simple interface for HTTP fetching and contains `basicFetcher` a simplistic implementation used in the CLI tool.
 
 `cmd` holds the CLI tool which can be useful in testing endpoints ahead of using them in your production application. This may also be helpful in debugging any issues as it enables you to see the actual response.
