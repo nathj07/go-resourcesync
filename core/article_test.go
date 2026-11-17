@@ -2,11 +2,12 @@ package core
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/nathj07/go-resourcesync/fetcher"
 )
@@ -22,7 +23,7 @@ func TestProcess(t *testing.T) {
 
 func TestProcessFetchFail(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, string(testArticleData))
+		w.Write(testArticleData)
 	}))
 	ce := &Extractor{Fetcher: &fetcher.BasicRSFetcher{}}
 	article, err := ce.Process(server.URL, "normally_valid_key")
