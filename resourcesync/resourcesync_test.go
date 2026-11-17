@@ -118,7 +118,7 @@ func TestParse(t *testing.T) {
 
 func TestProcess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, string(testResourceListIndex))
+		w.Write(testResourceListIndex)
 	}))
 	rs := New(&fetcher.BasicRSFetcher{})
 	rd, err := rs.Process(server.URL)
@@ -130,7 +130,7 @@ func TestProcess(t *testing.T) {
 
 func TestProcessDatadumpChangeList(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, string(testChangeListDataDumps))
+		w.Write(testChangeListDataDumps)
 	}))
 	rs := New(&fetcher.BasicRSFetcher{})
 	rd, err := rs.Process(server.URL)
@@ -142,7 +142,7 @@ func TestProcessDatadumpChangeList(t *testing.T) {
 
 func TestProcessUnsupportedType(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, string(testUnsupported))
+		w.Write(testUnsupported)
 	}))
 	rs := New(&fetcher.BasicRSFetcher{})
 	rd, err := rs.Process(server.URL)
